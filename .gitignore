@@ -85,6 +85,9 @@ apis/api-mono/api/.openapi-nodegen/
 # Terraform
 **/.terraform/
 .terraform.lock.hcl
+# secret values per environment (deploy/README.md); example.secrets.auto.tfvars stays
+deploy/terraform/envs/*.secrets.auto.tfvars
+!deploy/terraform/envs/example.secrets.auto.tfvars
 *.tfplan
 *.tfstate
 *.tfstate.*

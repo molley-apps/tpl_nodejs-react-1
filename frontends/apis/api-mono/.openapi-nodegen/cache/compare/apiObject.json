@@ -11,6 +11,602 @@
     }
   ],
   "paths": {
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get users, from admin",
+        "description": "Everyone with an account, newest first. Search matches email and name; role filters on a system role.",
+        "operationId": "adminUsersGet",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "The number of items to skip before starting to collect the result set"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 25,
+              "minimum": 0,
+              "maximum": 100
+            },
+            "description": "Max number of results returned"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term",
+            "example": "John"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by role name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "totalResultCount": {
+                          "type": "number"
+                        },
+                        "offset": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "firstName",
+                          "lastName",
+                          "_id",
+                          "email",
+                          "emailVerified",
+                          "roles",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "firstName": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "User's first name"
+                          },
+                          "lastName": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "User's last name"
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Display name shown in the UI, defaults to \"firstName lastName\" at sign up"
+                          },
+                          "image": {
+                            "type": "string",
+                            "maxLength": 2048,
+                            "description": "Avatar image URL"
+                          },
+                          "_id": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "description": "Managed by the auth layer, change it via the auth change-email flow, not this API"
+                          },
+                          "emailVerified": {
+                            "type": "boolean"
+                          },
+                          "roles": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "default": []
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminUsersRead",
+        "x-request-definitions": {
+          "query": {
+            "name": "AdminUsersGetQuery",
+            "params": [
+              "components.parameters.QueryOffset",
+              "components.parameters.QueryLimit",
+              "components.parameters.QuerySearch",
+              "components.parameters.QueryRole"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersGetQuery {\n    /**\n     * Max number of results returned\n     */\n    limit?: number;\n    /**\n     * The number of items to skip before starting to collect the result set\n     */\n    offset?: number;\n    /**\n     * Filter by role name\n     */\n    role?: string;\n    /**\n     * Search term\n     */\n    search?: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "Users"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/users/{userId}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a users based on {userId}, from admin",
+        "description": "Removes the account, its credentials and every session. A system admin cannot delete their own account.",
+        "operationId": "adminUsersUserIdDelete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminUsersUserIdDelete",
+        "x-request-definitions": {
+          "path": {
+            "name": "AdminUsersUserIdDeletePath",
+            "params": [
+              "components.parameters.PathUserId"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersUserIdDeletePath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "GenericDeleteSuccess"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/users/{userId}/roles": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a roles, from users {userId}, from admin",
+        "description": "Replaces the user's system roles. A system admin cannot remove their own SUPER_ADMIN role.",
+        "operationId": "adminUsersUserIdRolesPut",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the user"
+          },
+          {
+            "in": "body",
+            "name": "adminUsersUserIdRolesPutPut",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "roles"
+              ],
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "description": "The system roles the user should hold. Empty makes them a standard user.",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SUPER_ADMIN"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "roles"
+                ],
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "description": "The system roles the user should hold. Empty makes them a standard user.",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SUPER_ADMIN"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "firstName",
+                    "lastName",
+                    "_id",
+                    "email",
+                    "emailVerified",
+                    "roles",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "User's first name"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "User's last name"
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "Display name shown in the UI, defaults to \"firstName lastName\" at sign up"
+                    },
+                    "image": {
+                      "type": "string",
+                      "maxLength": 2048,
+                      "description": "Avatar image URL"
+                    },
+                    "_id": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Managed by the auth layer, change it via the auth change-email flow, not this API"
+                    },
+                    "emailVerified": {
+                      "type": "boolean"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminUsersUserIdRolesUpdate",
+        "x-request-definitions": {
+          "body": {
+            "name": "AdminUsersUserIdRolesPut",
+            "params": [
+              {
+                "name": "AdminUsersUserIdRolesPutPut",
+                "path": "components.schemas.AdminUsersRolesPut"
+              }
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersUserIdRolesPutPut {\n    /**\n     * The system roles the user should hold. Empty makes them a standard user.\n     */\n    roles: Role[];\n}\n\nexport enum Role {\n    SuperAdmin = \"SUPER_ADMIN\",\n}\n\n"
+            }
+          },
+          "path": {
+            "name": "AdminUsersUserIdRolesPutPath",
+            "params": [
+              "components.parameters.PathUserId"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersUserIdRolesPutPath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "User"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/users/{userId}/sessions": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a sessions, from users {userId}, from admin",
+        "description": "Deletes every session of the user, so each of their devices must sign in again.",
+        "operationId": "adminUsersUserIdSessionsDelete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminUsersUserIdSessionsDelete",
+        "x-request-definitions": {
+          "path": {
+            "name": "AdminUsersUserIdSessionsDeletePath",
+            "params": [
+              "components.parameters.PathUserId"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersUserIdSessionsDeletePath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "GenericDeleteSuccess"
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get sessions, from users {userId}, from admin",
+        "operationId": "adminUsersUserIdSessionsGet",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "description": "A Better Auth session document, as stored in the sessions collection. The token is never returned.",
+                    "required": [
+                      "_id",
+                      "userId",
+                      "createdAt",
+                      "updatedAt",
+                      "expiresAt"
+                    ],
+                    "properties": {
+                      "_id": {
+                        "type": "string"
+                      },
+                      "userId": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "ipAddress": {
+                        "type": "string"
+                      },
+                      "userAgent": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminUsersUserIdSessionsRead",
+        "x-request-definitions": {
+          "path": {
+            "name": "AdminUsersUserIdSessionsGetPath",
+            "params": [
+              "components.parameters.PathUserId"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminUsersUserIdSessionsGetPath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "AdminSessions"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
     "/health": {
       "get": {
         "tags": [
@@ -355,6 +951,15 @@
         "required": true,
         "description": "Name of the role"
       },
+      "PathUserId": {
+        "in": "path",
+        "name": "userId",
+        "schema": {
+          "type": "string"
+        },
+        "required": true,
+        "description": "ID of the user"
+      },
       "QueryCreatedAtFrom": {
         "in": "query",
         "name": "createdAtFrom",
@@ -515,6 +1120,101 @@
       }
     },
     "schemas": {
+      "AdminSession": {
+        "type": "object",
+        "description": "A Better Auth session document, as stored in the sessions collection. The token is never returned.",
+        "required": [
+          "_id",
+          "userId",
+          "createdAt",
+          "updatedAt",
+          "expiresAt"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ipAddress": {
+            "type": "string"
+          },
+          "userAgent": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminSessions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "description": "A Better Auth session document, as stored in the sessions collection. The token is never returned.",
+          "required": [
+            "_id",
+            "userId",
+            "createdAt",
+            "updatedAt",
+            "expiresAt"
+          ],
+          "properties": {
+            "_id": {
+              "type": "string"
+            },
+            "userId": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ipAddress": {
+              "type": "string"
+            },
+            "userAgent": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdminUsersRolesPut": {
+        "type": "object",
+        "required": [
+          "roles"
+        ],
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "The system roles the user should hold. Empty makes them a standard user.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SUPER_ADMIN"
+              ]
+            }
+          }
+        }
+      },
       "GenericDeleteSuccess": {
         "type": "object",
         "properties": {
@@ -756,6 +1456,93 @@
           }
         }
       },
+      "Users": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "totalResultCount": {
+                "type": "number"
+              },
+              "offset": {
+                "type": "number"
+              },
+              "limit": {
+                "type": "number"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "required": [
+                "firstName",
+                "lastName",
+                "_id",
+                "email",
+                "emailVerified",
+                "roles",
+                "createdAt",
+                "updatedAt"
+              ],
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "User's first name"
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "User's last name"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Display name shown in the UI, defaults to \"firstName lastName\" at sign up"
+                },
+                "image": {
+                  "type": "string",
+                  "maxLength": 2048,
+                  "description": "Avatar image URL"
+                },
+                "_id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Managed by the auth layer, change it via the auth change-email flow, not this API"
+                },
+                "emailVerified": {
+                  "type": "boolean"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": []
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
       "UserPut": {
         "required": [
           "firstName",
@@ -788,6 +1575,60 @@
     }
   },
   "interfaces": [
+    {
+      "name": "AdminSession",
+      "content": {
+        "outputString": "\n/**\n * A Better Auth session document, as stored in the sessions collection. The token is never\n * returned.\n */\nexport interface AdminSession {\n    _id:        string;\n    createdAt:  Date;\n    expiresAt:  Date;\n    ipAddress?: string;\n    updatedAt:  Date;\n    userAgent?: string;\n    userId:     string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSessions",
+      "content": {
+        "outputString": "export type AdminSessions = AdminSession[];\n\n/**\n * A Better Auth session document, as stored in the sessions collection. The token is never\n * returned.\n */\nexport interface AdminSession {\n    _id:        string;\n    createdAt:  Date;\n    expiresAt:  Date;\n    ipAddress?: string;\n    updatedAt:  Date;\n    userAgent?: string;\n    userId:     string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersGetQuery",
+      "content": {
+        "outputString": "\nexport interface AdminUsersGetQuery {\n    /**\n     * Max number of results returned\n     */\n    limit?: number;\n    /**\n     * The number of items to skip before starting to collect the result set\n     */\n    offset?: number;\n    /**\n     * Filter by role name\n     */\n    role?: string;\n    /**\n     * Search term\n     */\n    search?: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersRolesPut",
+      "content": {
+        "outputString": "\nexport interface AdminUsersRolesPut {\n    /**\n     * The system roles the user should hold. Empty makes them a standard user.\n     */\n    roles: Role[];\n}\n\nexport enum Role {\n    SuperAdmin = \"SUPER_ADMIN\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersUserIdDeletePath",
+      "content": {
+        "outputString": "\nexport interface AdminUsersUserIdDeletePath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersUserIdRolesPutPath",
+      "content": {
+        "outputString": "\nexport interface AdminUsersUserIdRolesPutPath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersUserIdRolesPutPut",
+      "content": {
+        "outputString": "\nexport interface AdminUsersUserIdRolesPutPut {\n    /**\n     * The system roles the user should hold. Empty makes them a standard user.\n     */\n    roles: Role[];\n}\n\nexport enum Role {\n    SuperAdmin = \"SUPER_ADMIN\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersUserIdSessionsDeletePath",
+      "content": {
+        "outputString": "\nexport interface AdminUsersUserIdSessionsDeletePath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminUsersUserIdSessionsGetPath",
+      "content": {
+        "outputString": "\nexport interface AdminUsersUserIdSessionsGetPath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+      }
+    },
     {
       "name": "GenericDeleteSuccess",
       "content": {
@@ -859,15 +1700,23 @@
       "content": {
         "outputString": "\nexport interface UserPut {\n    /**\n     * User's first name\n     */\n    firstName: string;\n    /**\n     * Avatar image URL\n     */\n    image?: string;\n    /**\n     * User's last name\n     */\n    lastName: string;\n    /**\n     * Display name shown in the UI, defaults to \"firstName lastName\" at sign up\n     */\n    name?: string;\n}\n\n"
       }
+    },
+    {
+      "name": "Users",
+      "content": {
+        "outputString": "\nexport interface Users {\n    data: Datum[];\n    meta: Meta;\n}\n\nexport interface Datum {\n    _id:       string;\n    createdAt: Date;\n    /**\n     * Managed by the auth layer, change it via the auth change-email flow, not this API\n     */\n    email:         string;\n    emailVerified: boolean;\n    /**\n     * User's first name\n     */\n    firstName: string;\n    /**\n     * Avatar image URL\n     */\n    image?: string;\n    /**\n     * User's last name\n     */\n    lastName: string;\n    /**\n     * Display name shown in the UI, defaults to \"firstName lastName\" at sign up\n     */\n    name?:     string;\n    roles:     string[];\n    updatedAt: Date;\n}\n\nexport interface Meta {\n    limit?:            number;\n    offset?:           number;\n    totalResultCount?: number;\n}\n\n"
+      }
     }
   ],
   "operationIds": [],
   "basePath": "/api",
   "groupNamesWithFirstUrlSegment": {
+    "admin": "admin",
     "health": "health",
     "user": "user"
   },
   "endpoints": [
+    "admin",
     "health",
     "user"
   ]

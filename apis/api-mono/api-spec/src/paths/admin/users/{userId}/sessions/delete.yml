@@ -1,0 +1,10 @@
+summary: Sign a user out everywhere (system admin)
+description: Deletes every session of the user, so each of their devices must sign in again.
+parameters:
+  - $ref: ../../../../../components/parameters/pathUserId.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../../components/schemas/generic/deleteSuccess.yml

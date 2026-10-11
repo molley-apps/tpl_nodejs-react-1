@@ -6,6 +6,143 @@ servers:
   - url: /api
     description: API endpoints (all routes prefixed with /api)
 paths:
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Get users, from admin
+      description: Everyone with an account, newest first. Search matches email and name; role filters on a system role.
+      operationId: adminUsersGet
+      parameters:
+        - $ref: '#/components/parameters/QueryOffset'
+        - $ref: '#/components/parameters/QueryLimit'
+        - $ref: '#/components/parameters/QuerySearch'
+        - $ref: '#/components/parameters/QueryRole'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminUsersRead
+  /admin/users/{userId}:
+    delete:
+      tags:
+        - Admin
+      summary: Delete a users based on {userId}, from admin
+      description: Removes the account, its credentials and every session. A system admin cannot delete their own account.
+      operationId: adminUsersUserIdDelete
+      parameters:
+        - $ref: '#/components/parameters/PathUserId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericDeleteSuccess'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminUsersUserIdDelete
+  /admin/users/{userId}/roles:
+    put:
+      tags:
+        - Admin
+      summary: Update a roles, from users {userId}, from admin
+      description: Replaces the user's system roles. A system admin cannot remove their own SUPER_ADMIN role.
+      operationId: adminUsersUserIdRolesPut
+      parameters:
+        - $ref: '#/components/parameters/PathUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersRolesPut'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminUsersUserIdRolesUpdate
+  /admin/users/{userId}/sessions:
+    delete:
+      tags:
+        - Admin
+      summary: Delete a sessions, from users {userId}, from admin
+      description: Deletes every session of the user, so each of their devices must sign in again.
+      operationId: adminUsersUserIdSessionsDelete
+      parameters:
+        - $ref: '#/components/parameters/PathUserId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericDeleteSuccess'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminUsersUserIdSessionsDelete
+    get:
+      tags:
+        - Admin
+      summary: Get sessions, from users {userId}, from admin
+      operationId: adminUsersUserIdSessionsGet
+      parameters:
+        - $ref: '#/components/parameters/PathUserId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSessions'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminUsersUserIdSessionsRead
   /health:
     get:
       tags:
@@ -94,6 +231,13 @@ components:
         type: string
       required: true
       description: Name of the role
+    PathUserId:
+      in: path
+      name: userId
+      schema:
+        type: string
+      required: true
+      description: ID of the user
     QueryCreatedAtFrom:
       in: query
       name: createdAtFrom
@@ -222,6 +366,49 @@ components:
       required: false
       description: Filter apps based on user's access permissions (role, location, etc.)
   schemas:
+    AdminSession:
+      type: object
+      description: A Better Auth session document, as stored in the sessions collection. The token is never returned.
+      required:
+        - _id
+        - userId
+        - createdAt
+        - updatedAt
+        - expiresAt
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+    AdminSessions:
+      type: array
+      items:
+        $ref: '#/components/schemas/AdminSession'
+    AdminUsersRolesPut:
+      type: object
+      required:
+        - roles
+      properties:
+        roles:
+          type: array
+          description: The system roles the user should hold. Empty makes them a standard user.
+          items:
+            type: string
+            enum:
+              - SUPER_ADMIN
     GenericDeleteSuccess:
       type: object
       properties:
@@ -351,6 +538,18 @@ components:
             updatedAt:
               type: string
               format: date-time
+    Users:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        meta:
+          $ref: '#/components/schemas/GenericSearchMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
     UserPut:
       allOf:
         - $ref: '#/components/schemas/UserBaseAttributes'

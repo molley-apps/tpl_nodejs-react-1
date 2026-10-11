@@ -1,0 +1,11 @@
+type: object
+required:
+  - roles
+properties:
+  roles:
+    type: array
+    description: The system roles the user should hold. Empty makes them a standard user.
+    items:
+      type: string
+      enum:
+        - SUPER_ADMIN

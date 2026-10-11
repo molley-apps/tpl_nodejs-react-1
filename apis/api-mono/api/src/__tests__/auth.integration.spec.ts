@@ -149,6 +149,116 @@ describe('Authentication (integration)', () => {
       });
     });
 
+    describe('admin users API', () => {
+      const bob = {
+        name: 'Bob Byte',
+        firstName: 'Bob',
+        lastName: 'Byte',
+        email: 'bob@example.com',
+        password: 'another-long-password',
+      };
+      let bobId: string;
+      let bobCookies: string;
+      let adaId: string;
+
+      const grantAda = (roles: string[]) =>
+        mongoose.connection.collection('users').updateOne({ email: ada.email }, { $set: { roles } });
+
+      beforeAll(async () => {
+        const signUp = await request(app).post('/api/auth/sign-up/email').send(bob);
+        bobId = signUp.body.user.id;
+        bobCookies = cookiesOf(signUp);
+        const me = await request(app).get('/api/user/current').set('Cookie', cookies);
+        adaId = me.body._id;
+      });
+
+      afterAll(() => grantAda([]));
+
+      it('refuses every admin route to a user without SUPER_ADMIN', async () => {
+        const res = await request(app).get('/api/admin/users').set('Cookie', cookies);
+        expect(res.status).toBe(403);
+      });
+
+      it('lists and searches users for a SUPER_ADMIN', async () => {
+        await grantAda([SYSTEM_SUPER_ADMIN]);
+
+        const all = await request(app).get('/api/admin/users').set('Cookie', cookies);
+        expect(all.status).toBe(200);
+        expect(all.body.meta.totalResultCount).toBe(2);
+        expect(all.body.data.map((u: { email: string }) => u.email).sort()).toEqual([ada.email, bob.email]);
+
+        const found = await request(app).get('/api/admin/users?search=BOB').set('Cookie', cookies);
+        expect(found.body.data).toHaveLength(1);
+        expect(found.body.data[0].email).toBe(bob.email);
+
+        const admins = await request(app).get('/api/admin/users?role=SUPER_ADMIN').set('Cookie', cookies);
+        expect(admins.body.data.map((u: { email: string }) => u.email)).toEqual([ada.email]);
+      });
+
+      it("sets and clears another user's system roles", async () => {
+        const grant = await request(app)
+          .put(`/api/admin/users/${bobId}/roles`)
+          .set('Cookie', cookies)
+          .send({ roles: ['SUPER_ADMIN'] });
+        expect(grant.status).toBe(200);
+        expect(grant.body.roles).toEqual(['SUPER_ADMIN']);
+
+        const clear = await request(app)
+          .put(`/api/admin/users/${bobId}/roles`)
+          .set('Cookie', cookies)
+          .send({ roles: [] });
+        expect(clear.body.roles).toEqual([]);
+      });
+
+      it('rejects a role the spec does not know', async () => {
+        const res = await request(app)
+          .put(`/api/admin/users/${bobId}/roles`)
+          .set('Cookie', cookies)
+          .send({ roles: ['OVERLORD'] });
+        expect(res.status).toBe(422);
+      });
+
+      it('will not let the admin drop their own SUPER_ADMIN role', async () => {
+        const res = await request(app)
+          .put(`/api/admin/users/${adaId}/roles`)
+          .set('Cookie', cookies)
+          .send({ roles: [] });
+        expect(res.status).toBe(403);
+      });
+
+      it("shows a user's sessions without the token and can revoke them", async () => {
+        const list = await request(app).get(`/api/admin/users/${bobId}/sessions`).set('Cookie', cookies);
+        expect(list.status).toBe(200);
+        expect(list.body.length).toBeGreaterThanOrEqual(1);
+        expect(list.body[0].userId).toBe(bobId);
+        expect(list.body[0].token).toBeUndefined();
+
+        const revoke = await request(app).delete(`/api/admin/users/${bobId}/sessions`).set('Cookie', cookies);
+        expect(revoke.status).toBe(200);
+
+        const bobAfter = await request(app).get('/api/user/current').set('Cookie', bobCookies);
+        expect(bobAfter.status).toBe(401);
+      });
+
+      it('will not let the admin delete their own account', async () => {
+        const res = await request(app).delete(`/api/admin/users/${adaId}`).set('Cookie', cookies);
+        expect(res.status).toBe(403);
+      });
+
+      it('deletes another user with their credentials', async () => {
+        const res = await request(app).delete(`/api/admin/users/${bobId}`).set('Cookie', cookies);
+        expect(res.status).toBe(200);
+
+        expect(await mongoose.connection.collection('users').findOne({ _id: bobId as never })).toBeNull();
+        expect(await mongoose.connection.collection('accounts').findOne({ userId: bobId })).toBeNull();
+
+        const signIn = await request(app)
+          .post('/api/auth/sign-in/email')
+          .send({ email: bob.email, password: bob.password });
+        expect(signIn.status).toBe(401);
+      });
+    });
+
     it('ends the session on sign out', async () => {
       const out = await request(app).post('/api/auth/sign-out').set('Cookie', cookies).send({});
       expect(out.status).toBe(200);

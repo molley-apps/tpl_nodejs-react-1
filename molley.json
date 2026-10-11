@@ -1,0 +1,72 @@
+{
+  "manifestVersion": 1,
+  "template": "template_node",
+  "description": "One Cloud Run service: an OpenAPI-generated Express API with Better Auth that also serves the React frontends from a private GCS bucket.",
+  "services": [
+    {
+      "name": "api",
+      "path": "apis/api-mono/api",
+      "dockerfile": "apis/api-mono/api/Dockerfile",
+      "dockerTarget": "runtime",
+      "port": 8080,
+      "healthPath": "/api/health",
+      "readyPath": "/readyz",
+      "serves": ["/api", "/users/", "/admin/"]
+    }
+  ],
+  "frontends": [
+    {
+      "name": "users",
+      "path": "frontends/users",
+      "basePath": "/users/",
+      "bucketFolder": "users",
+      "access": "public",
+      "buildEnv": { "VITE_BASE_PATH": "/users/", "VITE_API_BASE_URL": "" }
+    },
+    {
+      "name": "admin",
+      "path": "frontends/admin",
+      "basePath": "/admin/",
+      "bucketFolder": "admin",
+      "access": "systemRole",
+      "buildEnv": { "VITE_BASE_PATH": "/admin/", "VITE_API_BASE_URL": "" }
+    }
+  ],
+  "frontendsInstall": { "path": "frontends", "command": "pnpm install --frozen-lockfile", "buildCommand": "pnpm build" },
+  "environments": {
+    "dev": { "branch": "develop", "varFile": "deploy/terraform/envs/dev.tfvars", "noindex": true },
+    "prod": { "branch": "main", "varFile": "deploy/terraform/envs/prod.tfvars", "noindex": false }
+  },
+  "terraform": {
+    "path": "deploy/terraform",
+    "versionFile": "deploy/terraform/.terraform-version",
+    "inputs": ["project_id", "region", "env", "app_name", "app_display_name", "app_url", "api_image", "noindex"],
+    "secretInputs": ["mongo_host", "mongo_user", "mongo_password", "email_password"],
+    "outputs": ["service_url", "service_name", "assets_bucket", "image_repository", "service_account", "secrets"]
+  },
+  "env": {
+    "plain": [
+      "NODE_ENV",
+      "APP_NAME",
+      "APP_URL",
+      "AUTH_TRUSTED_ORIGINS",
+      "GCS_FRONTEND_BUCKET",
+      "GCS_BASE_URL",
+      "EMAIL_MODE",
+      "EMAIL_HOST",
+      "EMAIL_PORT",
+      "EMAIL_USERNAME",
+      "EMAIL_FALLBACK_FROM",
+      "FRONTENDS_NOINDEX",
+      "TRUST_PROXY_HOPS"
+    ],
+    "secrets": ["MONGO_HOST", "MONGO_USER", "MONGO_PW", "AUTH_SECRET", "EMAIL_PASSWORD"]
+  },
+  "auth": { "provider": "better-auth", "basePath": "/api/auth", "systemRoles": ["SUPER_ADMIN"], "firstAdmin": "set roles: [\"SUPER_ADMIN\"] on the user document in MongoDB" },
+  "bootstrap": {
+    "appName": ["apis/api-mono/api/.env.example#APP_NAME", "frontends/users/src/config.ts#app.name", "frontends/admin/src/config.ts#app.name", "frontends/users/index.html#title"],
+    "landingPage": ["frontends/users/src/components/Greeting.tsx", "frontends/users/src/App.tsx"],
+    "theme": ["frontends/users/src/styles/index.css#:root", "frontends/admin/src/theme.ts#molleyColors"],
+    "componentLibrary": "frontends/users ships plain HTML and CSS; setup installs the chosen library and replaces src/components/"
+  }
+}

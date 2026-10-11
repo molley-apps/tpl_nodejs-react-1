@@ -1,0 +1,10 @@
+summary: Delete a user (system admin)
+description: Removes the account, its credentials and every session. A system admin cannot delete their own account.
+parameters:
+  - $ref: ../../../../components/parameters/pathUserId.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../components/schemas/generic/deleteSuccess.yml

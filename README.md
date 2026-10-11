@@ -18,6 +18,7 @@ It is one deployable: the API serves the React app(s) too, streaming each Vite b
 │           ├── src/domains/    # YOUR business logic
 │           ├── src/database/   # Models and repositories (typegoose/MongoDB)
 │           └── src/services/   # Shared services
+├── molley.json                 # Manifest: services, frontends, environments and env vars, read by Molley's provisioner
 ├── deploy/
 │   ├── terraform/              # Cloud Run + assets bucket + secrets per environment (envs/dev.tfvars, envs/prod.tfvars)
 │   ├── tf.sh                   # terraform for one env: deploy/tf.sh dev apply

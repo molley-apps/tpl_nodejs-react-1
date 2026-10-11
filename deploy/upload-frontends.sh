@@ -2,8 +2,8 @@
 # Build one or more frontend apps and upload them to the environment's assets
 # bucket, where the API serves them from (apis/api-mono/api/docs/FRONTEND_ASSETS.md).
 #
-#   TF_STATE_BUCKET=<state bucket> deploy/upload-frontends.sh dev            # users (the default list)
-#   TF_STATE_BUCKET=<state bucket> deploy/upload-frontends.sh prod users admin
+#   TF_STATE_BUCKET=<state bucket> deploy/upload-frontends.sh dev            # users and admin (the default list)
+#   TF_STATE_BUCKET=<state bucket> deploy/upload-frontends.sh prod users     # one app only
 #
 # Each app is built with VITE_BASE_PATH=/<app>/ (the prefix the API serves it
 # under, see FrontendAssetsService.frontendMap) and VITE_API_BASE_URL= (same
@@ -16,7 +16,7 @@ env_name="${1:-}"
 shift || true
 apps=("$@")
 if [[ ${#apps[@]} -eq 0 ]]; then
-  apps=(users)
+  apps=(users admin)
 fi
 here="$(cd "$(dirname "$0")" && pwd)"
 

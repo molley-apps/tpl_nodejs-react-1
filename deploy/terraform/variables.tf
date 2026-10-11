@@ -139,6 +139,51 @@ variable "env_vars" {
   default     = {}
 }
 
+variable "noindex" {
+  description = "Send X-Robots-Tag: noindex on every frontend response, so search engines skip this environment (dev)"
+  type        = bool
+  default     = false
+}
+
+# ---------------------------------------------------------------------------
+# Secret values. Never commit them: a developer puts them in a gitignored
+# envs/<env>.secrets.auto.tfvars, Molley's provisioner passes them as TF_VAR_*.
+# They are written to Secret Manager with write-only arguments and never land
+# in the state file. Leave one empty and its secret keeps a placeholder value.
+# ---------------------------------------------------------------------------
+
+variable "mongo_host" {
+  description = "Atlas SRV hostname, eg cluster0.abcde.mongodb.net (no scheme)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "mongo_user" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "mongo_password" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "email_password" {
+  description = "Password or API key for the SMTP user in var.email"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "secrets_version" {
+  description = "Bump by one whenever a secret value above changes, so a new Secret Manager version is written"
+  type        = number
+  default     = 1
+}
+
 # ---------------------------------------------------------------------------
 # Assets bucket
 # ---------------------------------------------------------------------------

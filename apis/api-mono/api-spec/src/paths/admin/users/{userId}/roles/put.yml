@@ -1,0 +1,16 @@
+summary: Set a user's system roles (system admin)
+description: Replaces the user's system roles. A system admin cannot remove their own SUPER_ADMIN role.
+parameters:
+  - $ref: ../../../../../components/parameters/pathUserId.yml
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: ../../../../../components/schemas/admin/users/roles/put.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../../components/schemas/user/model.yml

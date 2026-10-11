@@ -1,0 +1,9 @@
+summary: List a user's active sessions (system admin)
+parameters:
+  - $ref: ../../../../../components/parameters/pathUserId.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../../components/schemas/admin/session/models.yml

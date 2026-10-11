@@ -267,7 +267,7 @@ const Users = () => {
                                     <TableRow key={session._id}>
                                       <TableCell>{new Date(session.createdAt).toLocaleString()}</TableCell>
                                       <TableCell>
-                                        {session.lastAccessedAt ? relativeTime(session.lastAccessedAt) : 'Never'}
+                                        {relativeTime(session.updatedAt)}
                                       </TableCell>
                                       <TableCell>{new Date(session.expiresAt).toLocaleString()}</TableCell>
                                       <TableCell>{session.ipAddress || '—'}</TableCell>

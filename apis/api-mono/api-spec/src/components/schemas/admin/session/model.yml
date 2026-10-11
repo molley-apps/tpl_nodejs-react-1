@@ -1,0 +1,26 @@
+type: object
+description: A Better Auth session document, as stored in the sessions collection. The token is never returned.
+required:
+  - _id
+  - userId
+  - createdAt
+  - updatedAt
+  - expiresAt
+properties:
+  _id:
+    type: string
+  userId:
+    type: string
+  createdAt:
+    type: string
+    format: date-time
+  updatedAt:
+    type: string
+    format: date-time
+  expiresAt:
+    type: string
+    format: date-time
+  ipAddress:
+    type: string
+  userAgent:
+    type: string

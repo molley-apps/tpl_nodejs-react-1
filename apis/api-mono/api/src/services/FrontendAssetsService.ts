@@ -101,6 +101,10 @@ class FrontendAssetsService {
       return next();
     }
 
+    if (config.frontends.noindex && !this.isApiPath(req.path)) {
+      res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
     const match = matchFrontend(req.path);
     if (match) {
       return this.serveApp(req, res, match.prefix, match.app);

@@ -28,6 +28,12 @@ container_concurrency = 80
 deletion_protection  = true
 bucket_force_destroy = false
 
+noindex = false
+
+# Secret values live in envs/prod.secrets.auto.tfvars (gitignored), see deploy/README.md.
+# Bump when a value there changes:
+secrets_version = 1
+
 email = {
   host     = "smtp.sendgrid.net"
   port     = 587

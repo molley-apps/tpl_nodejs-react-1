@@ -197,5 +197,9 @@ export default {
     localDir: String(
       ProcEnvHelper.getOrSetDefault('FRONTENDS_LOCAL_DIR', path.resolve(process.cwd(), '../../../frontends')),
     ),
+    // Send X-Robots-Tag: noindex with every frontend response. On for a dev
+    // environment, so "try my app" links stay shareable without search engines
+    // indexing a half-built app.
+    noindex: String(ProcEnvHelper.getOrSetDefault('FRONTENDS_NOINDEX', 'false')) === 'true',
   },
 };

@@ -12,6 +12,7 @@ jest.mock('@google-cloud/storage', () => ({
 }));
 
 import { PassThrough } from 'stream';
+import config from '@/config';
 import FrontendAssetsService, { cacheControlFor, defaultAppPrefix } from '@/services/FrontendAssetsService';
 import { SessionData } from '@/services/SessionService';
 import { SYSTEM_SUPER_ADMIN } from '@/constants/ROLES';
@@ -95,6 +96,36 @@ describe('FrontendAssetsService routing', () => {
   it('passes non-GET requests through', async () => {
     const { next } = await request({ path: '/users/', method: 'POST' });
     expect(next).toHaveBeenCalled();
+  });
+
+  describe('noindex (dev environments)', () => {
+    afterEach(() => {
+      config.frontends.noindex = false;
+    });
+
+    it('tags every frontend response, including redirects, when enabled', async () => {
+      config.frontends.noindex = true;
+      const spy = jest.spyOn(FrontendAssetsService, 'serveAsset').mockResolvedValue(undefined);
+
+      const page = await request({ path: '/users/settings' });
+      const root = await request({ path: '/' });
+
+      expect(page.headers['X-Robots-Tag']).toBe('noindex, nofollow');
+      expect(root.headers['X-Robots-Tag']).toBe('noindex, nofollow');
+      spy.mockRestore();
+    });
+
+    it('leaves API responses and prod environments alone', async () => {
+      config.frontends.noindex = true;
+      const api = await request({ path: '/api/user/current' });
+      expect(api.headers['X-Robots-Tag']).toBeUndefined();
+
+      config.frontends.noindex = false;
+      const spy = jest.spyOn(FrontendAssetsService, 'serveAsset').mockResolvedValue(undefined);
+      const page = await request({ path: '/users/' });
+      expect(page.headers['X-Robots-Tag']).toBeUndefined();
+      spy.mockRestore();
+    });
   });
 
   it('sends the bare root to the default app', async () => {
