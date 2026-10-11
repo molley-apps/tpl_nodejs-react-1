@@ -1,0 +1,8 @@
+{
+  "nodegenDir": "services",
+  "nodegenMockDir": "services/__mocks__",
+  "nodegenType": "client",
+  "helpers": {
+    "useObjectReduceByMap": false
+  }
+}

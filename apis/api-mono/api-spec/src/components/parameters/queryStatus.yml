@@ -1,0 +1,9 @@
+name: status
+in: query
+required: false
+schema:
+  type: string
+  enum:
+    - active
+    - inactive
+description: Filter by member status

@@ -1,0 +1,6 @@
+in: path
+name: roleName
+schema:
+  type: string
+required: true
+description: Name of the role

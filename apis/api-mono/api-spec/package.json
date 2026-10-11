@@ -1,0 +1,13 @@
+{
+  "name": "api-mono",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "boats -i ./src/index.yml -o ./release/api-spec.yml -x -O"
+  },
+  "author": "",
+  "description": "",
+  "devDependencies": {
+    "boats": "^5.4.0"
+  },
+  "private": true
+}

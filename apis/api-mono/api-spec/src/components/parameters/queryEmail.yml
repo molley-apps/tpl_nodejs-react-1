@@ -1,0 +1,8 @@
+in: query
+name: email
+required: true
+schema:
+  type: string
+  minLength: 2
+description: Email search term (minimum 2 characters)
+example: john@

@@ -1,0 +1,23 @@
+{% extends "_layout/layout1.html.njk" %}
+
+{% block subject %}Verify your email address{% endblock %}
+
+{% block message %}
+  <tr class="content">
+    <td>
+      <table width="100%" class="pb-md">
+        <h1 class="title mb-lg" style="text-align: center;">Welcome to {{ appName }}</h1>
+
+        <p>Hi {{ name }},</p>
+
+        <p>Please confirm this is your email address by clicking the button below.</p>
+
+        <p style="text-align: center;"><a class="button" href="{{ url }}">Verify email</a></p>
+
+        <p>If you did not create an account with {{ appName }}, you can ignore this email.</p>
+      </table>
+    </td>
+  </tr>
+
+  {% include "_layout/footer/immutableFooter.html.njk" %}
+{% endblock %}

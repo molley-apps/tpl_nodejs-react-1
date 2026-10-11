@@ -1,0 +1,12 @@
+type: object
+required:
+  - userIds
+properties:
+  userIds:
+    type: array
+    items:
+      type: string
+      format: uuid
+    minItems: 1
+    maxItems: 100
+    description: Array of user IDs to fetch display names for

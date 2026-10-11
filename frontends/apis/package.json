@@ -1,0 +1,21 @@
+{
+  "name": "apis",
+  "description": "Generates the API consumers for the frontend apps",
+  "private": true,
+  "scripts": {
+    "generate:api-consumers": "node generate-apis.js && pnpm lint:fix",
+    "lint": "eslint **/*.{js,ts} --ignore-path .eslintignore",
+    "lint:fix": "eslint **/*.{js,ts} --fix --ignore-path .eslintignore"
+  },
+  "dependencies": {
+    "services": "workspace:services",
+    "object-reduce-by-map": "^2.1.0"
+  },
+  "devDependencies": {
+    "generate-it": "5.62.4",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint-plugin-unused-imports": "^3.2.0"
+  }
+}

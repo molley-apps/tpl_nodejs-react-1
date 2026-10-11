@@ -1,0 +1,8 @@
+in: query
+name: updatedAtTo
+required: false
+schema:
+  type: string
+  format: date-time
+description: Filter results updated on or before this date
+example: '2024-12-31T23:59:59Z'

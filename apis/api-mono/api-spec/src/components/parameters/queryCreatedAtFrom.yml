@@ -1,0 +1,8 @@
+in: query
+name: createdAtFrom
+required: false
+schema:
+  type: string
+  format: date-time
+description: Filter results created on or after this date
+example: '2024-01-01T00:00:00Z'

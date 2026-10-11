@@ -1,0 +1,30 @@
+allOf:
+  - $ref: ./baseAttributes.yml
+  - type: object
+    required:
+      - _id
+      - email
+      - emailVerified
+      - roles
+      - createdAt
+      - updatedAt
+    properties:
+      _id:
+        type: string
+      email:
+        type: string
+        format: email
+        description: Managed by the auth layer, change it via the auth change-email flow, not this API
+      emailVerified:
+        type: boolean
+      roles:
+        type: array
+        items:
+          type: string
+        default: []
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time

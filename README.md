@@ -9,11 +9,6 @@ It is one deployable: the API serves the React app(s) too, streaming each Vite b
 ## Project Structure
 
 ```
-├── Makefile                    # Docker shortcuts (setup, up, down, logs, reset)
-├── .env                        # Local environment variables (not committed)
-├── .env.example                # Template for .env
-├── docker-compose.dev.yml      # Local dev services (nginx, api, mailhog)
-├── nginx/                      # Nginx reverse proxy config
 ├── apis/
 │   └── api-mono/
 │       ├── api-spec/           # OpenAPI spec (BOATS)
@@ -24,21 +19,24 @@ It is one deployable: the API serves the React app(s) too, streaming each Vite b
 │           ├── src/database/   # Models and repositories (typegoose/MongoDB)
 │           └── src/services/   # Shared services
 └── frontends/
-    ├── pnpm-workspace.yaml     # Workspace: apis, services, users
+    ├── pnpm-workspace.yaml     # Workspace: apis, services, users, admin
     ├── apis/                   # Auto-generated API consumer services
     ├── services/               # Shared frontend services (HttpService, etc.)
-    └── users/                  # React app (Vite + MUI + Zustand)
+    ├── users/                  # React app (Vite + Zustand, plain HTML/CSS, no component library yet)
+    └── admin/                  # Staff console (MUI, Molley palette), served at /admin/
 ```
 
 ## Getting Started
 
 ### 1. Setup
 
-```bash
-make setup        # Creates .env from .env.example
-```
+Everything runs in the cloud; locally the API is a plain Node process and the apps are Vite dev servers.
 
-Edit `.env` with your MongoDB credentials and set `AUTH_SECRET` (`openssl rand -base64 32`).
+```bash
+cd apis/api-mono/api
+cp .env.example .env   # set MONGO_* for your Atlas cluster and AUTH_SECRET (openssl rand -base64 32)
+npm install
+```
 
 ### 2. Install frontend dependencies
 
@@ -47,16 +45,15 @@ cd frontends
 pnpm install
 ```
 
-### 3. Start everything
+### 3. Start the API
 
 ```bash
-make up           # Starts nginx, api-mono, and mailhog
+cd apis/api-mono/api
+npm run dev:start      # http://localhost:8080, hot-reloads via tsc-watch
 ```
 
-This brings up:
-- **Nginx** on `http://localhost:8999` — reverse proxies to the API
-- **API** — Express server (hot-reloads via tsc-watch)
-- **Mailhog** — dev email UI on `http://localhost:8025`
+With `EMAIL_MODE=FILE` (the default in `.env.example`) outgoing emails are written to `apis/api-mono/api/emails/logs`
+instead of being sent.
 
 ### 4. Start the React app
 
@@ -65,19 +62,9 @@ cd frontends/users
 pnpm dev          # Vite dev server on http://localhost:3004/users/
 ```
 
-The React app calls the API through nginx at `http://localhost:8999`. To see it the way it is deployed, run
-`pnpm build` instead: with `NODE_ENV=local` the API serves `frontends/users/dist` at `http://localhost:8999/users/`.
-
-### Makefile Commands
-
-| Command      | Description                          |
-|--------------|--------------------------------------|
-| `make setup` | Create `.env` from `.env.example`    |
-| `make up`    | Start all Docker services            |
-| `make up-d`  | Start all services (detached)        |
-| `make down`  | Stop all services                    |
-| `make logs`  | Tail logs from all services          |
-| `make reset` | Stop, remove volumes, and restart    |
+The React app calls the API at `http://localhost:8080`. To see it the way it is deployed, run `pnpm build` instead:
+with `NODE_ENV=local` the API serves `frontends/users/dist` at `http://localhost:8080/users/` (and the admin at
+`/admin/`).
 
 ## Authentication
 
@@ -91,12 +78,12 @@ additions in `AuthService.ts`.
 
 ```
 AUTH_SECRET=<openssl rand -base64 32>
-AUTH_BASE_URL=http://localhost:8999          # empty on Cloud Run, inferred from headers
+AUTH_BASE_URL=http://localhost:8080          # empty on Cloud Run, inferred from headers
 AUTH_TRUSTED_ORIGINS=http://localhost:3004   # extra origins allowed to sign in; the API's own origin always is
 AUTH_REQUIRE_EMAIL_VERIFICATION=false
 ```
 
-Locally the verification, reset and magic link emails land in Mailhog at `http://localhost:8025`.
+Locally (`EMAIL_MODE=FILE`) the verification, reset and magic link emails are written to `apis/api-mono/api/emails/logs`.
 The React app shows a sign in / create account page until a session exists (`frontends/users/src/components/auth/`).
 
 ## Frontend Workspace

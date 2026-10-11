@@ -1,0 +1,6 @@
+in: query
+name: userId
+schema:
+  type: string
+required: false
+description: Filter apps based on user's access permissions (role, location, etc.)

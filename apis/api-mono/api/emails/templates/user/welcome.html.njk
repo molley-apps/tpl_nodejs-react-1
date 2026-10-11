@@ -1,0 +1,21 @@
+{% extends "_layout/layout1.html.njk" %}
+
+{% block subject %}Welcome to {{ appName }} 🎉{% endblock %}
+
+{% block message %}
+  <tr class="content">
+    <td>
+      <table width="100%" class="pb-md">
+        <h1 class="title mb-lg" style="text-align: center;">Welcome to {{ appName }}!</h1>
+
+        <p>Hi {{ firstName }},</p>
+
+        <p>Thanks for joining {{ appName }}! We're excited to have you on board.</p>
+
+        <p></p>
+      </table>
+    </td>
+  </tr>
+
+  {% include "_layout/footer/immutableFooter.html.njk" %}
+{% endblock %}

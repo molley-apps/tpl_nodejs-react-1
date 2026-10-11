@@ -1,0 +1,96 @@
+# keep files
+!.gitkeep
+
+# docker
+docker-data
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# node_modules
+node_modules/
+*/node_modules/
+
+# PNPM
+.pnpm-store/
+.pnpm-debug.log*
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variable files
+.env
+.env.local
+.env.*.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary folders
+tmp/
+temp/
+
+# Local development
+.local
+
+# Local HTTPS certificates (generated per-machine via mkcert)
+nginx/tmp-certs/*.pem
+
+# Storybook build outputs
+storybook-static/
+
+# Jest
+coverage/
+
+apis/api-mono/api/.openapi-nodegen/
+
+# Terraform
+**/.terraform/
+.terraform.lock.hcl
+*.tfplan
+*.tfstate
+*.tfstate.*
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

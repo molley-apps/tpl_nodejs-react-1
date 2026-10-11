@@ -1,0 +1,9 @@
+packages:
+  - "apis"
+  - "services"
+  - "users"
+  - "admin"
+
+# Allow these packages to run their install scripts (pnpm blocks the rest by default)
+allowBuilds:
+  esbuild: true

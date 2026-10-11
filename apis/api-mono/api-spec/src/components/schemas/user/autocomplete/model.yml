@@ -1,0 +1,21 @@
+type: object
+required:
+  - _id
+  - email
+properties:
+  _id:
+    type: string
+    description: User ID
+  email:
+    type: string
+    format: email
+    description: User's email address
+  firstName:
+    type: string
+    description: User's first name
+  lastName:
+    type: string
+    description: User's last name
+  displayName:
+    type: string
+    description: Full display name

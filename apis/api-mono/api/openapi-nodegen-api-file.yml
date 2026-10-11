@@ -1,0 +1,356 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: api-mono
+servers:
+  - url: /api
+    description: API endpoints (all routes prefixed with /api)
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Get health
+      operationId: healthGet
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+  /user/current:
+    get:
+      tags:
+        - User
+      summary: Get current, from user
+      operationId: userCurrentGet
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiUserCurrentRead
+    put:
+      tags:
+        - User
+      summary: Update a current, from user
+      operationId: userCurrentPut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPut'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiUserCurrentUpdate
+components:
+  parameters:
+    PathId:
+      in: path
+      name: id
+      schema:
+        type: string
+      required: true
+      description: ID of object to fetch
+    PathRoleName:
+      in: path
+      name: roleName
+      schema:
+        type: string
+      required: true
+      description: Name of the role
+    QueryCreatedAtFrom:
+      in: query
+      name: createdAtFrom
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter results created on or after this date
+      example: '2024-01-01T00:00:00Z'
+    QueryCreatedAtTo:
+      in: query
+      name: createdAtTo
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter results created on or before this date
+      example: '2024-12-31T23:59:59Z'
+    QueryDateFrom:
+      in: query
+      name: dateFrom
+      required: true
+      schema:
+        type: string
+        format: date-time
+      description: date from
+    QueryDateTo:
+      in: query
+      name: dateTo
+      required: true
+      schema:
+        type: string
+        format: date-time
+      description: date to
+    QueryEmail:
+      in: query
+      name: email
+      required: true
+      schema:
+        type: string
+        minLength: 2
+      description: Email search term (minimum 2 characters)
+      example: john@
+    QueryEndDate:
+      name: endDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter logs until this date
+    QueryLimit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        default: 25
+        minimum: 0
+        maximum: 100
+      description: Max number of results returned
+    QueryOffset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set
+    QueryRole:
+      name: role
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filter by role name
+    QuerySearch:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+      description: Search term
+      example: John
+    QueryStartDate:
+      name: startDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter logs from this date
+    QueryStatus:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - active
+          - inactive
+      description: Filter by member status
+    QueryUpdatedAtFrom:
+      in: query
+      name: updatedAtFrom
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter results updated on or after this date
+      example: '2024-01-01T00:00:00Z'
+    QueryUpdatedAtTo:
+      in: query
+      name: updatedAtTo
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Filter results updated on or before this date
+      example: '2024-12-31T23:59:59Z'
+    QueryUserId:
+      in: query
+      name: userId
+      schema:
+        type: string
+      required: false
+      description: Filter apps based on user's access permissions (role, location, etc.)
+  schemas:
+    GenericDeleteSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+    GenericSearchMeta:
+      type: object
+      properties:
+        totalResultCount:
+          type: number
+        offset:
+          type: number
+        limit:
+          type: number
+    Health:
+      type: object
+      properties:
+        http:
+          type: boolean
+    UserAutocomplete:
+      type: object
+      required:
+        - _id
+        - email
+      properties:
+        _id:
+          type: string
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User's email address
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        displayName:
+          type: string
+          description: Full display name
+    UserAutocompletes:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserAutocomplete'
+    UserBaseAttributes:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          maxLength: 100
+          description: User's first name
+        lastName:
+          type: string
+          maxLength: 100
+          description: User's last name
+        name:
+          type: string
+          maxLength: 200
+          description: Display name shown in the UI, defaults to "firstName lastName" at sign up
+        image:
+          type: string
+          maxLength: 2048
+          description: Avatar image URL
+    UserDisplayName:
+      type: object
+      required:
+        - _id
+        - displayName
+      properties:
+        _id:
+          type: string
+          format: uuid
+          description: User ID
+        displayName:
+          type: string
+          description: User's display name (firstName + lastName or email fallback)
+    UserDisplayNames:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserDisplayName'
+    UserDisplayNamePost:
+      type: object
+      required:
+        - userIds
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          maxItems: 100
+          description: Array of user IDs to fetch display names for
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserBaseAttributes'
+        - type: object
+          required:
+            - _id
+            - email
+            - emailVerified
+            - roles
+            - createdAt
+            - updatedAt
+          properties:
+            _id:
+              type: string
+            email:
+              type: string
+              format: email
+              description: Managed by the auth layer, change it via the auth change-email flow, not this API
+            emailVerified:
+              type: boolean
+            roles:
+              type: array
+              items:
+                type: string
+              default: []
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    UserPut:
+      allOf:
+        - $ref: '#/components/schemas/UserBaseAttributes'

@@ -1,0 +1,16 @@
+{
+    "nunjucksOptions": {
+        "tags": {}
+    },
+    "jsonSchemaRefParserBundleOpts": {},
+    "picomatchOptions": {
+        "bash": true
+    },
+    "permissionConfig": {
+        "globalPrefix": "api",
+        "methodAliasPosition":"endOfPermissionString",
+        "permissionStyle": "camelCase",
+        "permissionSegmentStyle": "camelCase"
+    },
+    "paths": {}
+}

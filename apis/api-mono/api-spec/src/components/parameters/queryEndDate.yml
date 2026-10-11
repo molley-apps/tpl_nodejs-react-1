@@ -1,0 +1,7 @@
+name: endDate
+in: query
+required: false
+schema:
+  type: string
+  format: date-time
+description: Filter logs until this date

@@ -1,0 +1,21 @@
+type: object
+required:
+  - firstName
+  - lastName
+properties:
+  firstName:
+    type: string
+    maxLength: 100
+    description: User's first name
+  lastName:
+    type: string
+    maxLength: 100
+    description: User's last name
+  name:
+    type: string
+    maxLength: 200
+    description: Display name shown in the UI, defaults to "firstName lastName" at sign up
+  image:
+    type: string
+    maxLength: 2048
+    description: Avatar image URL

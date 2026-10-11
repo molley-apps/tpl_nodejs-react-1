@@ -1,0 +1,33 @@
+import cors from 'cors';
+
+export interface CorsOptions {
+  corsWhiteList?: string[];
+}
+
+/**
+ * CORS middleware
+ * Add to your config: config.corsWhiteList
+ * The value should be a comma separated list of permitted domains
+ */
+export default (corsOptions?: CorsOptions) => {
+  const whitelist = corsOptions?.corsWhiteList || ['*'];
+
+  if (whitelist.length === 1 && whitelist[0] === '*') {
+    // Allow all origins but with credentials support (reflect the origin)
+    return cors({
+      origin: true,
+      credentials: true, // Allow credentials (cookies, auth headers)
+    });
+  }
+
+  return cors({
+    origin: (origin: string | undefined, callback: any) => {
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // Allow credentials - aka cookies
+  });
+};

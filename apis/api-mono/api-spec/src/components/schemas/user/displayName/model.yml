@@ -1,0 +1,12 @@
+type: object
+required:
+  - _id
+  - displayName
+properties:
+  _id:
+    type: string
+    format: uuid
+    description: User ID
+  displayName:
+    type: string
+    description: User's display name (firstName + lastName or email fallback)

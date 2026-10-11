@@ -1,0 +1,7 @@
+name: startDate
+in: query
+required: false
+schema:
+  type: string
+  format: date-time
+description: Filter logs from this date

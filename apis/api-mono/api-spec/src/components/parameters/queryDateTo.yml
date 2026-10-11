@@ -1,0 +1,7 @@
+in: query
+name: dateTo
+required: true
+schema:
+  type: string
+  format: date-time
+description: date to
