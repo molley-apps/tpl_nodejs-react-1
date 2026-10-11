@@ -24,7 +24,8 @@ locals {
   }
 
   # The values to write. The auth secret is always generated here; the rest
-  # come from the variables and are skipped while empty (placeholder stays).
+  # come from the variables. An empty one is left out, so secrets.tf writes a
+  # placeholder for it at the first apply (or at a secrets_version bump).
   secret_values = {
     for id, value in {
       mongo-host     = var.mongo_host
@@ -52,7 +53,9 @@ locals {
       TRUST_PROXY_HOPS     = "1"
       FRONTENDS_NOINDEX    = tostring(var.noindex)
     },
-    var.app_url == "" ? {} : { APP_URL = var.app_url },
+    # Behind a proxy or custom hostname the Host header the API sees is not the
+    # public one, so Better Auth is told the public origin explicitly too.
+    var.app_url == "" ? {} : { APP_URL = var.app_url, AUTH_BASE_URL = var.app_url },
     var.env_vars,
   )
 }

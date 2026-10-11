@@ -7,9 +7,13 @@
 #     (TF_VAR_* from Molley's provisioner, or a gitignored *.secrets.auto.tfvars)
 #
 # The versions use write-only arguments, so the values never land in state;
-# only the generated auth secret does, as the random_password resource. Bump
-# var.secrets_version to write a new version after changing a value. A secret
-# whose value is not provided keeps a placeholder so the first apply succeeds.
+# only the generated auth secret does, as the random_password resource.
+#
+# Write-only values are not compared between applies: a version is written
+# when var.secrets_version changes and left alone otherwise. So an apply that
+# changes scaling or env vars needs no secret values at all, and rotating one
+# is "new value, bump secrets_version, apply". Every secret is rewritten at a
+# bump, so provide all of them then; one left empty gets a placeholder.
 
 resource "random_password" "auth_secret" {
   length  = 48
@@ -29,22 +33,11 @@ resource "google_secret_manager_secret" "api" {
 }
 
 resource "google_secret_manager_secret_version" "value" {
-  for_each = local.secret_values
+  for_each = local.secrets
 
   secret                 = google_secret_manager_secret.api[each.key].id
-  secret_data_wo         = each.value
+  secret_data_wo         = lookup(local.secret_values, each.key, "REPLACE_ME")
   secret_data_wo_version = var.secrets_version
-}
-
-resource "google_secret_manager_secret_version" "placeholder" {
-  for_each = { for id in keys(local.secrets) : id => id if !contains(keys(local.secret_values), id) }
-
-  secret      = google_secret_manager_secret.api[each.key].id
-  secret_data = "REPLACE_ME"
-
-  lifecycle {
-    ignore_changes = [secret_data]
-  }
 }
 
 resource "google_secret_manager_secret_iam_member" "api_accessor" {

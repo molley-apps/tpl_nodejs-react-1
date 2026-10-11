@@ -77,7 +77,7 @@ Grant the first admin by setting `roles: ["SUPER_ADMIN"]` on their user document
 | API code | `deploy/push-api.sh <env> [version]` |
 | A frontend | `deploy/upload-frontends.sh <env> <app>` |
 | Scaling, env vars, email settings | edit the tfvars, `deploy/tf.sh <env> apply` |
-| A secret | change it in `envs/<env>.secrets.auto.tfvars`, bump `secrets_version` in the tfvars, `deploy/tf.sh <env> apply`, then `deploy/push-api.sh <env>` (a new revision picks up `latest`) |
+| A secret | change it in `envs/<env>.secrets.auto.tfvars` (keep every secret in the file: a bump rewrites all of them), bump `secrets_version` in the tfvars, `deploy/tf.sh <env> apply`, then `deploy/push-api.sh <env>` (a new revision picks up `latest`). Applies that do not bump the version never touch the secret values |
 | Everything in dev | `deploy/tf.sh dev destroy` (prod has `deletion_protection` and keeps its bucket) |
 
 ## Custom domain
