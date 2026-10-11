@@ -81,6 +81,7 @@ storybook-static/
 coverage/
 
 apis/api-mono/api/.openapi-nodegen/
+frontends/apis/.openapi-nodegen/
 
 # Terraform
 **/.terraform/
