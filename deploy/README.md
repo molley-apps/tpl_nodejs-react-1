@@ -1,0 +1,99 @@
+# Deploy
+
+Terraform for one environment of the product on GCP, with `dev` and `prod` variable files. Running it gives you:
+
+| Resource | Name | Purpose |
+|---|---|---|
+| Cloud Run service | `<env>-<app_name>` | the API, which also serves the frontends; public, scales to zero |
+| GCS bucket | `<project>-<env>-<app_name>` | the built frontends, one folder per app; private, read by the service account |
+| Artifact Registry repo | `<env>-<app_name>` | the API images, `api:latest` plus optional version tags |
+| Secret Manager secrets | `<env>-<app_name>-{mongo-host,mongo-user,mongo-password,auth-secret,email-password}` | injected as env vars |
+| Service account | `<env>-<app_name>@…` | logs and traces, bucket read, secret read; nothing else |
+| Domain mapping | optional | `custom_domain` in the tfvars |
+
+Everything is in `terraform/`; `tf.sh`, `push-api.sh` and `upload-frontends.sh` are thin wrappers so each step is one
+command. The database is not provisioned here: create a MongoDB Atlas cluster (M0 is free) and put its host, user
+and password in the secrets.
+
+## Prerequisites
+
+- `terraform` (version in `terraform/.terraform-version`), `gcloud` logged in with access to the project, `docker`,
+  `pnpm`.
+- A GCP project per environment (sharing one is possible; names are prefixed by `env`).
+- A GCS bucket for terraform state, created once:
+
+```bash
+gcloud storage buckets create gs://<state bucket> --project=<project> --location=europe-west2 --uniform-bucket-level-access
+export TF_STATE_BUCKET=<state bucket>
+```
+
+## First deploy of an environment
+
+1. Fill in `terraform/envs/dev.tfvars` (or `prod.tfvars`): every `CHANGEME`.
+
+2. Create the infrastructure. `api_image` is empty, so the service starts on a public placeholder image with a TCP
+   probe; nothing of ours exists to run yet.
+
+```bash
+deploy/tf.sh dev apply
+```
+
+3. Set the secrets (they were created with the value `REPLACE_ME`):
+
+```bash
+printf '%s' 'cluster0.abcde.mongodb.net' | gcloud secrets versions add dev-<app_name>-mongo-host     --data-file=- --project=<project>
+printf '%s' 'db_user'                    | gcloud secrets versions add dev-<app_name>-mongo-user     --data-file=- --project=<project>
+printf '%s' 'db_password'                | gcloud secrets versions add dev-<app_name>-mongo-password --data-file=- --project=<project>
+openssl rand -base64 32 | tr -d '\n'     | gcloud secrets versions add dev-<app_name>-auth-secret    --data-file=- --project=<project>
+printf '%s' 'SG.sendgrid-api-key'        | gcloud secrets versions add dev-<app_name>-email-password --data-file=- --project=<project>
+```
+
+4. Build, push and roll out the API:
+
+```bash
+deploy/push-api.sh dev
+```
+
+5. Point terraform at the real image and the public URL, then apply once more. This swaps the bootstrap TCP probe
+   for the `/readyz` startup probe and gives the API its `APP_URL` for emails:
+
+```
+api_image = "<image_repository output>/api:latest"
+app_url   = "<service_url output>"          # or set custom_domain and use https://<that>
+```
+
+```bash
+deploy/tf.sh dev apply
+```
+
+6. Upload the frontends:
+
+```bash
+deploy/upload-frontends.sh dev            # users
+deploy/upload-frontends.sh dev users admin
+```
+
+Open the `service_url` output: `/` lands in the users app, `/api/health` answers, `/admin/` needs a `SUPER_ADMIN`.
+Grant the first admin by setting `roles: ["SUPER_ADMIN"]` on their user document in Mongo.
+
+## Day to day
+
+| Change | Command |
+|---|---|
+| API code | `deploy/push-api.sh <env> [version]` |
+| A frontend | `deploy/upload-frontends.sh <env> <app>` |
+| Scaling, env vars, email settings | edit the tfvars, `deploy/tf.sh <env> apply` |
+| A secret | `gcloud secrets versions add …`, then `deploy/push-api.sh <env>` (a new revision picks up `latest`) |
+| Everything in dev | `deploy/tf.sh dev destroy` (prod has `deletion_protection` and keeps its bucket) |
+
+## Custom domain
+
+Set `custom_domain = "app.example.com"` and apply. The `custom_domain_dns` output lists the record(s) to create at
+your DNS provider; Cloud Run issues the certificate once they resolve. Then set `app_url = "https://app.example.com"`
+and apply again so emails link to the domain.
+
+## Probes, for the record
+
+The API opens its port before Mongo is connected (see `apis/api-mono/api/server.ts`), so the startup probe is
+`/readyz`, which returns 200 only once the database is up, and the liveness probe is `/api/health`. Pointing the
+startup probe at `/api/health` would send traffic to an instance that cannot serve an authenticated request yet.

@@ -71,8 +71,8 @@ Cache headers set by the API:
 
 ## Deploying an app
 
-The repo carries no CI or hosting code: the build pipeline that deploys generated apps builds each frontend with
-`VITE_BASE_PATH=/<name>/` and `VITE_API_BASE_URL=` (same origin), then replaces the app's bucket folder:
+`deploy/upload-frontends.sh <env> <app…>` builds each app with `VITE_BASE_PATH=/<name>/` and `VITE_API_BASE_URL=`
+(same origin), then replaces the app's folder in the environment's bucket (`deploy/README.md` has the whole flow):
 
 ```bash
 pnpm --filter <name> build
@@ -82,7 +82,8 @@ gsutil -m cp -r frontends/<name>/dist/* gs://${BUCKET}/<name>/
 
 Only that folder is touched, so the other apps keep serving. Uploading a new build is the whole frontend deploy;
 no API change or new Cloud Run revision is needed. The API itself ships as the `Dockerfile` in `apis/api-mono/api`
-with `/readyz` as its startup probe and `/api/health` as its liveness probe.
+(`deploy/push-api.sh`), with `/readyz` as its startup probe and `/api/health` as its liveness probe
+(`deploy/terraform/main.tf`).
 
 ## Local development
 

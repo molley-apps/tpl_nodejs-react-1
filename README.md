@@ -18,6 +18,11 @@ It is one deployable: the API serves the React app(s) too, streaming each Vite b
 │           ├── src/domains/    # YOUR business logic
 │           ├── src/database/   # Models and repositories (typegoose/MongoDB)
 │           └── src/services/   # Shared services
+├── deploy/
+│   ├── terraform/              # Cloud Run + assets bucket + secrets per environment (envs/dev.tfvars, envs/prod.tfvars)
+│   ├── tf.sh                   # terraform for one env: deploy/tf.sh dev apply
+│   ├── push-api.sh             # build, push and roll out the API image
+│   └── upload-frontends.sh     # build an app and upload its dist/ to the bucket
 └── frontends/
     ├── pnpm-workspace.yaml     # Workspace: apis, services, users, admin
     ├── apis/                   # Auto-generated API consumer services
@@ -85,6 +90,21 @@ AUTH_REQUIRE_EMAIL_VERIFICATION=false
 
 Locally (`EMAIL_MODE=FILE`) the verification, reset and magic link emails are written to `apis/api-mono/api/emails/logs`.
 The React app shows a sign in / create account page until a session exists (`frontends/users/src/components/auth/`).
+
+## Deploying
+
+`deploy/` holds Terraform for a `dev` and a `prod` environment on GCP: one public Cloud Run service (the API, which
+also serves the frontends), a private assets bucket, an Artifact Registry repository, the Secret Manager secrets and a
+least-privilege service account. Three scripts cover the day-to-day:
+
+```bash
+export TF_STATE_BUCKET=<your terraform state bucket>
+deploy/tf.sh dev apply                 # create or update the environment
+deploy/push-api.sh dev                 # build, push and roll out the API image
+deploy/upload-frontends.sh dev users   # build an app and upload it to the bucket
+```
+
+`deploy/README.md` walks through the first deploy (secrets, image, public URL) and custom domains.
 
 ## Frontend Workspace
 
