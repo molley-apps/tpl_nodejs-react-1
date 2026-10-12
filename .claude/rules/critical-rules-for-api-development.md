@@ -141,7 +141,7 @@ npm run generate:server
 { "scripts": { "build": "boats -i ./src/index.yml -o ./release/api-spec.yml -x -O" } }
 
 // api
-{ "scripts": { "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/johncarmichael-rgb/gen-tpl-express-server.git" } }
+{ "scripts": { "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/molley-io/tpl_generate-it-express-server.git" } }
 
 // frontends/apis
 { "scripts": { "generate:api-consumers": "node generate-apis.js && pnpm lint:fix" } }

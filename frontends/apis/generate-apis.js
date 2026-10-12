@@ -18,7 +18,7 @@ const generate = (configArray) => {
       segmentsCount: 1,
       swaggerFilePath: '../../apis/' + item.from + '/api-spec/release/api-spec.yml',
       targetDir: './' + item.from,
-      template: 'https://github.com/johncarmichael-rgb/gen-tpl-client-api-consumers.git',
+      template: 'https://github.com/molley-io/tpl_generate-it-client-api-consumers.git',
       variables: { httpServiceImport: 'services/src/HttpService', },
     })
       .then(() => console.log(`API generated: ${item.from}`) && generate(configArray))

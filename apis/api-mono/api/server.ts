@@ -3,26 +3,16 @@ import 'source-map-support/register';
 
 import '@/http/nodegen/utils/logger';
 import app from '@/app';
-import appCli from '@/app.cli';
 import startup from '@/utils/startup';
-import run from '@/cli/run';
 import config from '@/config';
 import packageJson from './package.json';
 
-const cliInput = appCli();
-const PORT = cliInput.port || config.port;
+const PORT = config.port;
 
 app(PORT)
   .then(async (http) => {
-    if (cliInput['run-script']) {
-      // CLI path (dev only — run.ts throws in production): the DB must be
-      // connected before the script runs, so await startup first.
-      await startup();
-      return run(cliInput['run-script'], cliInput);
-    }
-
-    // Server path: open the port immediately so the container is "started",
-    // then connect Mongo + finish startup in the background.
+    // Open the port immediately so the container is "started", then connect
+    // Mongo + finish startup in the background.
     //
     // What gates traffic depends on the startup probe. With a TCP check the
     // pod is "started" the moment it listens and takes traffic mid-connect —

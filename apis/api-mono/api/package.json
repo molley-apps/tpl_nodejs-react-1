@@ -7,7 +7,6 @@
   "scripts": {
     "clean": "rm -rf build",
     "build": "npm run clean && tsc && tsc-alias",
-    "cli-script": "VERBOSE=true && node ./build/server.js -r ",
     "dev:build": "tsc-watch --preserveWatchOutput --onSuccess 'npx tsc-alias'",
     "dev:setup": "git config core.hooksPath githooks && cp -n .env.example .env",
     "dev:start": "tsc-watch --preserveWatchOutput --onSuccess 'sh -c \"npx tsc-alias && npm start\"'",
@@ -22,7 +21,7 @@
     "test:unit": "ENVIRONMENT=test npm run jest -- --silent --runInBand",
     "test:unit:single": "npm run jest -- --clearCache && ENVIRONMENT=test npm run jest -- --collectCoverage false --verbose --forceExit --detectOpenHandles",
     "generate:help": "generate-it --help",
-    "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/johncarmichael-rgb/gen-tpl-express-server.git",
+    "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/molley-io/tpl_generate-it-express-server.git",
     "migrate-mongo": "migrate-mongo",
     "migration:create": "migrate-mongo create",
     "migration:up": "migrate-mongo up",
@@ -36,7 +35,6 @@
     "better-auth": "^1.7.7",
     "celebrate": "^15.0.3",
     "cli-color": "^2.0.4",
-    "command-line-args": "^5.2.1",
     "cookie": "^1.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -63,7 +61,6 @@
   },
   "devDependencies": {
     "@types/cli-color": "^2.0.6",
-    "@types/command-line-args": "^5.2.3",
     "@types/cookie": "^0.6.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
