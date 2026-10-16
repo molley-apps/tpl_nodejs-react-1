@@ -100,7 +100,6 @@ resource "google_cloud_run_v2_service" "api" {
     google_project_iam_member.api,
     google_storage_bucket_iam_member.api_reader,
     google_secret_manager_secret_version.value,
-    google_secret_manager_secret_version.placeholder,
     google_secret_manager_secret_iam_member.api_accessor,
   ]
 }

@@ -37,10 +37,13 @@ locals {
   }
 
   # Plain env vars the API needs. var.env_vars is merged last so it can override.
+  # MONGO_DB is required: without it the API falls back to its package name as
+  # the database, which the per-environment Atlas user has no rights on.
   env_vars = merge(
     {
       NODE_ENV             = "production"
       APP_NAME             = var.app_display_name
+      MONGO_DB             = var.mongo_database != "" ? var.mongo_database : var.env
       AUTH_TRUSTED_ORIGINS = join(",", var.auth_trusted_origins)
       GCS_FRONTEND_BUCKET  = google_storage_bucket.assets.name
       GCS_BASE_URL         = "https://storage.googleapis.com"

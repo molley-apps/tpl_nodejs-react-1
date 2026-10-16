@@ -24,12 +24,14 @@ variable "env" {
 }
 
 variable "app_name" {
+  # 25 at most: every resource is named "<env>-<app_name>" and a service
+  # account id ("prod-<app_name>") may not exceed 30 characters.
   description = "Short DNS-safe product name, eg my-app. Used in every resource name"
   type        = string
 
   validation {
-    condition     = can(regex("^[a-z][a-z0-9-]{1,28}[a-z0-9]$", var.app_name))
-    error_message = "app_name must be lowercase letters, digits and hyphens, 3 to 30 characters"
+    condition     = can(regex("^[a-z][a-z0-9-]{1,23}[a-z0-9]$", var.app_name))
+    error_message = "app_name must be lowercase letters, digits and hyphens, 3 to 25 characters"
   }
 }
 
@@ -151,6 +153,15 @@ variable "noindex" {
 # They are written to Secret Manager with write-only arguments and never land
 # in the state file. Leave one empty and its secret keeps a placeholder value.
 # ---------------------------------------------------------------------------
+
+variable "mongo_database" {
+  description = <<-EOT
+    Database the API uses on the cluster (MONGO_DB). Empty means the environment name, which is
+    the database the mongo_user is scoped to when Molley provisions the cluster.
+  EOT
+  type        = string
+  default     = ""
+}
 
 variable "mongo_host" {
   description = "Atlas SRV hostname, eg cluster0.abcde.mongodb.net (no scheme)"
