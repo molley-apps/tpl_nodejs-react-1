@@ -40,7 +40,7 @@
   "terraform": {
     "path": "deploy/terraform",
     "versionFile": "deploy/terraform/.terraform-version",
-    "inputs": ["project_id", "region", "env", "app_name", "app_display_name", "app_url", "api_image", "noindex", "mongo_database"],
+    "inputs": ["project_id", "region", "env", "app_name", "app_display_name", "app_url", "api_image", "noindex", "mongo_database", "secrets_version"],
     "secretInputs": ["mongo_host", "mongo_user", "mongo_password", "email_password"],
     "outputs": ["service_url", "service_name", "assets_bucket", "image_repository", "service_account", "secrets"]
   },

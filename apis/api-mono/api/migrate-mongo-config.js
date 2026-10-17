@@ -1,5 +1,5 @@
-// eslint-disable-next-line no-undef,@typescript-eslint/no-var-requires
-const packageJson = require('./package.json');
+// eslint-disable-next-line @typescript-eslint/no-var-requires,no-undef
+const config = require('./build/src/config').default;
 // eslint-disable-next-line @typescript-eslint/no-var-requires,no-undef
 const mongoConnectionService = require('./build/src/services/MongoConnectionService').default;
 
@@ -10,7 +10,10 @@ module.exports = {
     // binds no listeners and opens no connection until connect() is called.
     url: mongoConnectionService.buildUri(),
 
-    databaseName: packageJson.name,
+    // The same database the app uses (MONGO_DB). A deployed environment's
+    // database user is scoped to that one database, so the changelog must
+    // live there too, not in a database named after the package.
+    databaseName: config.mongoDb.mongoDatabase,
 
     options: {
       //   connectTimeoutMS: 3600000, // increase connection timeout to 1 hour

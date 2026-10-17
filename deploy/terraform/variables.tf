@@ -190,7 +190,10 @@ variable "email_password" {
 }
 
 variable "secrets_version" {
-  description = "Bump by one whenever a secret value above changes, so a new Secret Manager version is written"
+  description = <<-EOT
+    Bump whenever a secret value above changes, so a new Secret Manager version is written. By hand: add one.
+    Molley's provisioner passes a new value on every run, because it generates new database passwords on every run.
+  EOT
   type        = number
   default     = 1
 }
