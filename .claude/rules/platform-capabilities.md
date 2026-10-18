@@ -31,3 +31,24 @@ Rules for any code that sends email:
 - Local development: with `NODE_ENV=local` and no provider saved, `send` falls back to the `EMAIL_*` env settings
   (`EMAIL_MODE=FILE` writes each message to `emails/logs`, or point `EMAIL_HOST` at Mailpit). That fallback never
   applies to a deployed environment.
+
+## `scheduled-jobs`: running code on a schedule
+
+Jobs live in the code; schedules live in the app's database and are set by an administrator in the admin app under
+**Schedules**. Each enabled schedule is its own Cloud Scheduler job that the API creates and removes itself; nothing
+polls, and an app with no enabled schedules is never woken.
+
+Rules for anything that must run on a schedule:
+
+- Add one file under `apis/api-mono/api/src/jobs/<name>.ts` using `defineJob` (copy `purgeExpiredSessions.ts`) and
+  list it in `src/jobs/index.ts`. Nothing else: no `setInterval`, no cron libraries, no background loops, no
+  Terraform or Cloud Scheduler changes.
+- Give it a sensible `defaultSchedule`. Every job ships disabled; the administrator turns it on and sets the real
+  cron and timezone in the admin app. Do not try to enable it from code.
+- A job is one HTTP request and must finish well under four minutes (the Cloud Run request timeout is 300 s and
+  the handler's `ctx.signal` aborts shortly before it). If the work cannot fit, split it into smaller jobs or stop
+  and ask; do not add a queue.
+- Keep database access in repository classes as everywhere else; the handler orchestrates and returns a small JSON
+  summary, which the admin app shows as the last result.
+- Locally (`NODE_ENV=local`) a timer in the API runs due jobs every 30 seconds through the same code; there is no
+  Cloud Scheduler to configure.

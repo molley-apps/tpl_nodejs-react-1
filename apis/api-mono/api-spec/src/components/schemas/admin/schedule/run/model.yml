@@ -1,0 +1,26 @@
+type: object
+required:
+  - startedAt
+  - finishedAt
+  - status
+  - durationMs
+  - by
+properties:
+  startedAt:
+    type: string
+    format: date-time
+  finishedAt:
+    type: string
+    format: date-time
+  status:
+    $ref: ./status/enum.yml
+  durationMs:
+    type: integer
+  by:
+    type: string
+    description: scheduler, local-timer or admin:<userId>
+  error:
+    type: string
+  result:
+    type: object
+    description: What the handler returned, a small JSON object

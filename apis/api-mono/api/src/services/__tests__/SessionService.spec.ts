@@ -98,6 +98,8 @@ describe('SessionService', () => {
     it('matches exact public paths only', () => {
       expect(SessionService.isPublicPath('/api/health')).toBe(true);
       expect(SessionService.isPublicPath('/api/health/deep')).toBe(false);
+      // Cloud Scheduler's job calls carry their own OIDC token instead of a session
+      expect(SessionService.isPublicPath('/api/internal/jobs/purge-expired-sessions')).toBe(true);
       expect(SessionService.isPublicPath('/api/user/current')).toBe(false);
     });
 

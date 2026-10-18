@@ -1,0 +1,8 @@
+summary: Scheduled jobs and their schedules (system admin)
+description: One row per job registered in the code (src/jobs), with the administrator-owned schedule, the last run and the next run.
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../components/schemas/admin/schedule/models.yml

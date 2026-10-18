@@ -1,0 +1,7 @@
+in: path
+name: name
+schema:
+  type: string
+  pattern: '^[a-z][a-z0-9-]{2,40}$'
+required: true
+description: The job name as registered in src/jobs

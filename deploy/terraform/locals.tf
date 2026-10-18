@@ -55,6 +55,10 @@ locals {
       EMAIL_SUPPORT        = var.email.from
       TRUST_PROXY_HOPS     = "1"
       FRONTENDS_NOINDEX    = tostring(var.noindex)
+      # Scheduled jobs: the API manages its own Cloud Scheduler jobs (sa.tf)
+      GCP_PROJECT_ID          = var.project_id
+      GCP_REGION              = var.region
+      SCHEDULER_INVOKER_EMAIL = google_service_account.scheduler_invoker.email
     },
     # Behind a proxy or custom hostname the Host header the API sees is not the
     # public one, so Better Auth is told the public origin explicitly too.

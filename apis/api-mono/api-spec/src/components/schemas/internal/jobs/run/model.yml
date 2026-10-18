@@ -1,0 +1,11 @@
+type: object
+required:
+  - skipped
+properties:
+  skipped:
+    type: boolean
+    description: True when the job was disabled, unknown or already running, so nothing ran
+  status:
+    $ref: ../../../admin/schedule/run/status/enum.yml
+  durationMs:
+    type: integer

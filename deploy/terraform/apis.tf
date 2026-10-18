@@ -7,6 +7,7 @@ resource "google_project_service" "required" {
     "secretmanager.googleapis.com",
     "storage.googleapis.com",
     "iam.googleapis.com",
+    "cloudscheduler.googleapis.com",
   ])
 
   project            = var.project_id

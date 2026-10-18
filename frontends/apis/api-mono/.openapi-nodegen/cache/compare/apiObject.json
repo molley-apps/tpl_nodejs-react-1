@@ -11,6 +11,548 @@
     }
   ],
   "paths": {
+    "/admin/schedules": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get schedules, from admin",
+        "description": "One row per job registered in the code (src/jobs), with the administrator-owned schedule, the last run and the next run.",
+        "operationId": "adminSchedulesGet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "cron": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Five-field cron expression, eg \"15 3 * * *\""
+                      },
+                      "timezone": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "description": "IANA timezone name the cron is read in, eg Europe/London"
+                      },
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "defaultCron": {
+                        "type": "string",
+                        "description": "The schedule the code suggests; Reset to default returns to it"
+                      },
+                      "defaultTimezone": {
+                        "type": "string"
+                      },
+                      "orphaned": {
+                        "type": "boolean",
+                        "description": "The code no longer registers this job; kept for its history, cannot be enabled"
+                      },
+                      "running": {
+                        "type": "boolean"
+                      },
+                      "schedulerJobName": {
+                        "type": "string",
+                        "description": "Full Cloud Scheduler job name while enabled in a deployed environment"
+                      },
+                      "lastRun": {
+                        "type": "object",
+                        "required": [
+                          "startedAt",
+                          "finishedAt",
+                          "status",
+                          "durationMs",
+                          "by"
+                        ],
+                        "properties": {
+                          "startedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "success",
+                              "failed",
+                              "timed-out"
+                            ]
+                          },
+                          "durationMs": {
+                            "type": "integer"
+                          },
+                          "by": {
+                            "type": "string",
+                            "description": "scheduler, local-timer or admin:<userId>"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "object",
+                            "description": "What the handler returned, a small JSON object"
+                          }
+                        }
+                      },
+                      "nextRunAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "description",
+                      "defaultCron",
+                      "defaultTimezone",
+                      "orphaned",
+                      "running"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSchedulesRead",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "AdminSchedules"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/schedules/{name}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a schedules based on {name}, from admin",
+        "description": "Saves the cron expression, timezone and enabled flag. Enabling creates the Cloud Scheduler job in this environment,\ndisabling deletes it. Nothing runs while a job is disabled.\n",
+        "operationId": "adminSchedulesNamePut",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,40}$"
+            },
+            "required": true,
+            "description": "The job name as registered in src/jobs"
+          },
+          {
+            "in": "body",
+            "name": "adminSchedulesNamePutPut",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cron": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Five-field cron expression, eg \"15 3 * * *\""
+                },
+                "timezone": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "IANA timezone name the cron is read in, eg Europe/London"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+                }
+              },
+              "required": [
+                "cron",
+                "timezone",
+                "enabled"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cron": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Five-field cron expression, eg \"15 3 * * *\""
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "IANA timezone name the cron is read in, eg Europe/London"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+                  }
+                },
+                "required": [
+                  "cron",
+                  "timezone",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cron": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Five-field cron expression, eg \"15 3 * * *\""
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "description": "IANA timezone name the cron is read in, eg Europe/London"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "defaultCron": {
+                      "type": "string",
+                      "description": "The schedule the code suggests; Reset to default returns to it"
+                    },
+                    "defaultTimezone": {
+                      "type": "string"
+                    },
+                    "orphaned": {
+                      "type": "boolean",
+                      "description": "The code no longer registers this job; kept for its history, cannot be enabled"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "schedulerJobName": {
+                      "type": "string",
+                      "description": "Full Cloud Scheduler job name while enabled in a deployed environment"
+                    },
+                    "lastRun": {
+                      "type": "object",
+                      "required": [
+                        "startedAt",
+                        "finishedAt",
+                        "status",
+                        "durationMs",
+                        "by"
+                      ],
+                      "properties": {
+                        "startedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "finishedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "success",
+                            "failed",
+                            "timed-out"
+                          ]
+                        },
+                        "durationMs": {
+                          "type": "integer"
+                        },
+                        "by": {
+                          "type": "string",
+                          "description": "scheduler, local-timer or admin:<userId>"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "result": {
+                          "type": "object",
+                          "description": "What the handler returned, a small JSON object"
+                        }
+                      }
+                    },
+                    "nextRunAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "description",
+                    "defaultCron",
+                    "defaultTimezone",
+                    "orphaned",
+                    "running"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSchedulesNameUpdate",
+        "x-request-definitions": {
+          "body": {
+            "name": "AdminSchedulesNamePut",
+            "params": [
+              {
+                "name": "AdminSchedulesNamePutPut",
+                "path": "components.schemas.AdminSchedulePut"
+              }
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSchedulesNamePutPut {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron: string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled: boolean;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone: string;\n}\n\n"
+            }
+          },
+          "path": {
+            "name": "AdminSchedulesNamePutPath",
+            "params": [
+              "components.parameters.PathScheduleName"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSchedulesNamePutPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "AdminSchedule"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/schedules/{name}/run": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a run, from schedules {name}, from admin",
+        "description": "Executes the job immediately in this request, whether or not it is enabled, and returns the recorded run. Skipped when the job is already running.",
+        "operationId": "adminSchedulesNameRunPost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,40}$"
+            },
+            "required": true,
+            "description": "The job name as registered in src/jobs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cron": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Five-field cron expression, eg \"15 3 * * *\""
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "description": "IANA timezone name the cron is read in, eg Europe/London"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "defaultCron": {
+                      "type": "string",
+                      "description": "The schedule the code suggests; Reset to default returns to it"
+                    },
+                    "defaultTimezone": {
+                      "type": "string"
+                    },
+                    "orphaned": {
+                      "type": "boolean",
+                      "description": "The code no longer registers this job; kept for its history, cannot be enabled"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "schedulerJobName": {
+                      "type": "string",
+                      "description": "Full Cloud Scheduler job name while enabled in a deployed environment"
+                    },
+                    "lastRun": {
+                      "type": "object",
+                      "required": [
+                        "startedAt",
+                        "finishedAt",
+                        "status",
+                        "durationMs",
+                        "by"
+                      ],
+                      "properties": {
+                        "startedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "finishedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "success",
+                            "failed",
+                            "timed-out"
+                          ]
+                        },
+                        "durationMs": {
+                          "type": "integer"
+                        },
+                        "by": {
+                          "type": "string",
+                          "description": "scheduler, local-timer or admin:<userId>"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "result": {
+                          "type": "object",
+                          "description": "What the handler returned, a small JSON object"
+                        }
+                      }
+                    },
+                    "nextRunAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "description",
+                    "defaultCron",
+                    "defaultTimezone",
+                    "orphaned",
+                    "running"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          },
+          "422": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSchedulesNameRunCreate",
+        "x-request-definitions": {
+          "path": {
+            "name": "AdminSchedulesNameRunPostPath",
+            "params": [
+              "components.parameters.PathScheduleName"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSchedulesNameRunPostPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "AdminSchedule"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
     "/admin/settings/email": {
       "delete": {
         "tags": [
@@ -1184,6 +1726,93 @@
       "endpointName": "health",
       "groupName": "health"
     },
+    "/internal/jobs/{name}": {
+      "post": {
+        "tags": [
+          "Internal"
+        ],
+        "summary": "Create a jobs based on {name}, from internal",
+        "description": "Called by Cloud Scheduler with an OIDC token for this environment's invoker service account; anything else is 401.\nRuns the job once (a concurrent or retried call is skipped) and answers 200 even when the job itself failed, so\nScheduler does not retry an application failure.\n",
+        "operationId": "internalJobsNamePost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,40}$"
+            },
+            "required": true,
+            "description": "The job name as registered in src/jobs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "skipped"
+                  ],
+                  "properties": {
+                    "skipped": {
+                      "type": "boolean",
+                      "description": "True when the job was disabled, unknown or already running, so nothing ran"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "failed",
+                        "timed-out"
+                      ]
+                    },
+                    "durationMs": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          },
+          "422": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiInternalJobsNameCreate",
+        "x-request-definitions": {
+          "path": {
+            "name": "InternalJobsNamePostPath",
+            "params": [
+              "components.parameters.PathScheduleName"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface InternalJobsNamePostPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "InternalJobsRun"
+        }
+      },
+      "endpointName": "internal",
+      "groupName": "internal"
+    },
     "/user/current": {
       "get": {
         "tags": [
@@ -1484,6 +2113,16 @@
         "required": true,
         "description": "Name of the role"
       },
+      "PathScheduleName": {
+        "in": "path",
+        "name": "name",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{2,40}$"
+        },
+        "required": true,
+        "description": "The job name as registered in src/jobs"
+      },
       "PathUserId": {
         "in": "path",
         "name": "userId",
@@ -1653,6 +2292,304 @@
       }
     },
     "schemas": {
+      "AdminScheduleBaseAttributes": {
+        "type": "object",
+        "properties": {
+          "cron": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Five-field cron expression, eg \"15 3 * * *\""
+          },
+          "timezone": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "IANA timezone name the cron is read in, eg Europe/London"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+          }
+        }
+      },
+      "AdminSchedule": {
+        "type": "object",
+        "properties": {
+          "cron": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Five-field cron expression, eg \"15 3 * * *\""
+          },
+          "timezone": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "IANA timezone name the cron is read in, eg Europe/London"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "defaultCron": {
+            "type": "string",
+            "description": "The schedule the code suggests; Reset to default returns to it"
+          },
+          "defaultTimezone": {
+            "type": "string"
+          },
+          "orphaned": {
+            "type": "boolean",
+            "description": "The code no longer registers this job; kept for its history, cannot be enabled"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "schedulerJobName": {
+            "type": "string",
+            "description": "Full Cloud Scheduler job name while enabled in a deployed environment"
+          },
+          "lastRun": {
+            "type": "object",
+            "required": [
+              "startedAt",
+              "finishedAt",
+              "status",
+              "durationMs",
+              "by"
+            ],
+            "properties": {
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "finishedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "success",
+                  "failed",
+                  "timed-out"
+                ]
+              },
+              "durationMs": {
+                "type": "integer"
+              },
+              "by": {
+                "type": "string",
+                "description": "scheduler, local-timer or admin:<userId>"
+              },
+              "error": {
+                "type": "string"
+              },
+              "result": {
+                "type": "object",
+                "description": "What the handler returned, a small JSON object"
+              }
+            }
+          },
+          "nextRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "defaultCron",
+          "defaultTimezone",
+          "orphaned",
+          "running"
+        ]
+      },
+      "AdminSchedules": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cron": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Five-field cron expression, eg \"15 3 * * *\""
+            },
+            "timezone": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "IANA timezone name the cron is read in, eg Europe/London"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "defaultCron": {
+              "type": "string",
+              "description": "The schedule the code suggests; Reset to default returns to it"
+            },
+            "defaultTimezone": {
+              "type": "string"
+            },
+            "orphaned": {
+              "type": "boolean",
+              "description": "The code no longer registers this job; kept for its history, cannot be enabled"
+            },
+            "running": {
+              "type": "boolean"
+            },
+            "schedulerJobName": {
+              "type": "string",
+              "description": "Full Cloud Scheduler job name while enabled in a deployed environment"
+            },
+            "lastRun": {
+              "type": "object",
+              "required": [
+                "startedAt",
+                "finishedAt",
+                "status",
+                "durationMs",
+                "by"
+              ],
+              "properties": {
+                "startedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "finishedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "success",
+                    "failed",
+                    "timed-out"
+                  ]
+                },
+                "durationMs": {
+                  "type": "integer"
+                },
+                "by": {
+                  "type": "string",
+                  "description": "scheduler, local-timer or admin:<userId>"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "object",
+                  "description": "What the handler returned, a small JSON object"
+                }
+              }
+            },
+            "nextRunAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "name",
+            "description",
+            "defaultCron",
+            "defaultTimezone",
+            "orphaned",
+            "running"
+          ]
+        }
+      },
+      "AdminSchedulePut": {
+        "type": "object",
+        "properties": {
+          "cron": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Five-field cron expression, eg \"15 3 * * *\""
+          },
+          "timezone": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "IANA timezone name the cron is read in, eg Europe/London"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Creates a Cloud Scheduler job in this environment while true. Nothing runs while false."
+          }
+        },
+        "required": [
+          "cron",
+          "timezone",
+          "enabled"
+        ]
+      },
+      "AdminScheduleRun": {
+        "type": "object",
+        "required": [
+          "startedAt",
+          "finishedAt",
+          "status",
+          "durationMs",
+          "by"
+        ],
+        "properties": {
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failed",
+              "timed-out"
+            ]
+          },
+          "durationMs": {
+            "type": "integer"
+          },
+          "by": {
+            "type": "string",
+            "description": "scheduler, local-timer or admin:<userId>"
+          },
+          "error": {
+            "type": "string"
+          },
+          "result": {
+            "type": "object",
+            "description": "What the handler returned, a small JSON object"
+          }
+        }
+      },
+      "AdminScheduleRunStatusEnum": {
+        "type": "string",
+        "enum": [
+          "success",
+          "failed",
+          "timed-out"
+        ]
+      },
       "AdminSession": {
         "type": "object",
         "description": "A Better Auth session document, as stored in the sessions collection. The token is never returned.",
@@ -2005,6 +2942,29 @@
           }
         }
       },
+      "InternalJobsRun": {
+        "type": "object",
+        "required": [
+          "skipped"
+        ],
+        "properties": {
+          "skipped": {
+            "type": "boolean",
+            "description": "True when the job was disabled, unknown or already running, so nothing ran"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failed",
+              "timed-out"
+            ]
+          },
+          "durationMs": {
+            "type": "integer"
+          }
+        }
+      },
       "UserAutocomplete": {
         "type": "object",
         "required": [
@@ -2335,6 +3295,60 @@
   },
   "interfaces": [
     {
+      "name": "AdminSchedule",
+      "content": {
+        "outputString": "\nexport interface AdminSchedule {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron?: string;\n    /**\n     * The schedule the code suggests; Reset to default returns to it\n     */\n    defaultCron:     string;\n    defaultTimezone: string;\n    description:     string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled?:   boolean;\n    lastRun?:   LastRun;\n    name:       string;\n    nextRunAt?: Date;\n    /**\n     * The code no longer registers this job; kept for its history, cannot be enabled\n     */\n    orphaned: boolean;\n    running:  boolean;\n    /**\n     * Full Cloud Scheduler job name while enabled in a deployed environment\n     */\n    schedulerJobName?: string;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone?:  string;\n    updatedAt?: Date;\n}\n\nexport interface LastRun {\n    /**\n     * scheduler, local-timer or admin:<userId>\n     */\n    by:         string;\n    durationMs: number;\n    error?:     string;\n    finishedAt: Date;\n    /**\n     * What the handler returned, a small JSON object\n     */\n    result?:   { [key: string]: any };\n    startedAt: Date;\n    status:    Status;\n}\n\nexport enum Status {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminScheduleBaseAttributes",
+      "content": {
+        "outputString": "\nexport interface AdminScheduleBaseAttributes {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron?: string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled?: boolean;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone?: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSchedulePut",
+      "content": {
+        "outputString": "\nexport interface AdminSchedulePut {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron: string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled: boolean;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminScheduleRun",
+      "content": {
+        "outputString": "\nexport interface AdminScheduleRun {\n    /**\n     * scheduler, local-timer or admin:<userId>\n     */\n    by:         string;\n    durationMs: number;\n    error?:     string;\n    finishedAt: Date;\n    /**\n     * What the handler returned, a small JSON object\n     */\n    result?:   { [key: string]: any };\n    startedAt: Date;\n    status:    Status;\n}\n\nexport enum Status {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminScheduleRunStatusEnum",
+      "content": {
+        "outputString": "\nexport enum AdminScheduleRunStatusEnum {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSchedules",
+      "content": {
+        "outputString": "export type AdminSchedules = AdminSchedule[];\n\nexport interface AdminSchedule {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron?: string;\n    /**\n     * The schedule the code suggests; Reset to default returns to it\n     */\n    defaultCron:     string;\n    defaultTimezone: string;\n    description:     string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled?:   boolean;\n    lastRun?:   LastRun;\n    name:       string;\n    nextRunAt?: Date;\n    /**\n     * The code no longer registers this job; kept for its history, cannot be enabled\n     */\n    orphaned: boolean;\n    running:  boolean;\n    /**\n     * Full Cloud Scheduler job name while enabled in a deployed environment\n     */\n    schedulerJobName?: string;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone?:  string;\n    updatedAt?: Date;\n}\n\nexport interface LastRun {\n    /**\n     * scheduler, local-timer or admin:<userId>\n     */\n    by:         string;\n    durationMs: number;\n    error?:     string;\n    finishedAt: Date;\n    /**\n     * What the handler returned, a small JSON object\n     */\n    result?:   { [key: string]: any };\n    startedAt: Date;\n    status:    Status;\n}\n\nexport enum Status {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSchedulesNamePutPath",
+      "content": {
+        "outputString": "\nexport interface AdminSchedulesNamePutPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSchedulesNamePutPut",
+      "content": {
+        "outputString": "\nexport interface AdminSchedulesNamePutPut {\n    /**\n     * Five-field cron expression, eg \"15 3 * * *\"\n     */\n    cron: string;\n    /**\n     * Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.\n     */\n    enabled: boolean;\n    /**\n     * IANA timezone name the cron is read in, eg Europe/London\n     */\n    timezone: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSchedulesNameRunPostPath",
+      "content": {
+        "outputString": "\nexport interface AdminSchedulesNameRunPostPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+      }
+    },
+    {
       "name": "AdminSession",
       "content": {
         "outputString": "\n/**\n * A Better Auth session document, as stored in the sessions collection. The token is never\n * returned.\n */\nexport interface AdminSession {\n    _id:        string;\n    createdAt:  Date;\n    expiresAt:  Date;\n    ipAddress?: string;\n    updatedAt:  Date;\n    userAgent?: string;\n    userId:     string;\n}\n\n"
@@ -2449,6 +3463,18 @@
       }
     },
     {
+      "name": "InternalJobsNamePostPath",
+      "content": {
+        "outputString": "\nexport interface InternalJobsNamePostPath {\n    /**\n     * The job name as registered in src/jobs\n     */\n    name: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "InternalJobsRun",
+      "content": {
+        "outputString": "\nexport interface InternalJobsRun {\n    durationMs?: number;\n    /**\n     * True when the job was disabled, unknown or already running, so nothing ran\n     */\n    skipped: boolean;\n    status?: Status;\n}\n\nexport enum Status {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
       "name": "User",
       "content": {
         "outputString": "\nexport interface User {\n    _id:       string;\n    createdAt: Date;\n    /**\n     * Managed by the auth layer, change it via the auth change-email flow, not this API\n     */\n    email:         string;\n    emailVerified: boolean;\n    /**\n     * User's first name\n     */\n    firstName: string;\n    /**\n     * Avatar image URL\n     */\n    image?: string;\n    /**\n     * User's last name\n     */\n    lastName: string;\n    /**\n     * Display name shown in the UI, defaults to \"firstName lastName\" at sign up\n     */\n    name?:     string;\n    roles:     string[];\n    updatedAt: Date;\n}\n\n"
@@ -2515,12 +3541,14 @@
     "admin": "admin",
     "capabilities": "capabilities",
     "health": "health",
+    "internal": "internal",
     "user": "user"
   },
   "endpoints": [
     "admin",
     "capabilities",
     "health",
+    "internal",
     "user"
   ]
 }

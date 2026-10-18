@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "template": "tpl_nodejs-react-1",
   "description": "One Cloud Run service: an OpenAPI-generated Express API with Better Auth that also serves the React frontends from a private GCS bucket.",
-  "capabilities": ["email-settings"],
+  "capabilities": ["email-settings", "scheduled-jobs"],
   "services": [
     {
       "name": "api",
@@ -59,7 +59,10 @@
       "EMAIL_USERNAME",
       "EMAIL_FALLBACK_FROM",
       "FRONTENDS_NOINDEX",
-      "TRUST_PROXY_HOPS"
+      "TRUST_PROXY_HOPS",
+      "GCP_PROJECT_ID",
+      "GCP_REGION",
+      "SCHEDULER_INVOKER_EMAIL"
     ],
     "secrets": ["MONGO_HOST", "MONGO_USER", "MONGO_PW", "AUTH_SECRET", "EMAIL_PASSWORD"]
   },

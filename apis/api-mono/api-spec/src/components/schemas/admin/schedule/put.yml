@@ -1,0 +1,7 @@
+allOf:
+  - $ref: ./baseAttributes.yml
+  - type: object
+    required:
+      - cron
+      - timezone
+      - enabled

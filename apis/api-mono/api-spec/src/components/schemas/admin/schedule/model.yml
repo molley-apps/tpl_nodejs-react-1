@@ -1,0 +1,36 @@
+allOf:
+  - $ref: ./baseAttributes.yml
+  - type: object
+    required:
+      - name
+      - description
+      - defaultCron
+      - defaultTimezone
+      - orphaned
+      - running
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      defaultCron:
+        type: string
+        description: The schedule the code suggests; Reset to default returns to it
+      defaultTimezone:
+        type: string
+      orphaned:
+        type: boolean
+        description: The code no longer registers this job; kept for its history, cannot be enabled
+      running:
+        type: boolean
+      schedulerJobName:
+        type: string
+        description: Full Cloud Scheduler job name while enabled in a deployed environment
+      lastRun:
+        $ref: ./run/model.yml
+      nextRunAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time

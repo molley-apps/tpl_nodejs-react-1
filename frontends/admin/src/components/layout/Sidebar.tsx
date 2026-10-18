@@ -3,6 +3,7 @@ import { alpha } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EmailIcon from '@mui/icons-material/Email';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLayoutStore } from '@/store/layoutStore';
 import { useUserStore } from '@/store/userStore';
@@ -14,6 +15,7 @@ const DRAWER_WIDTH = 240;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
+  { text: 'Schedules', icon: <ScheduleIcon />, path: '/schedules' },
   { text: 'Email', icon: <EmailIcon />, path: '/settings/email' },
 ];
 

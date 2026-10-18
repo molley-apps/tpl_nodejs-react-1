@@ -1,6 +1,8 @@
 import { Joi } from 'celebrate';
 
 export default {
+  adminSchedulesGet: {},
+
   adminUsersGet: {
     query: Joi.object({
       offset: Joi.number().integer().min(0),

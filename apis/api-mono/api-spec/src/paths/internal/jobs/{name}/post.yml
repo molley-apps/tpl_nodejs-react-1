@@ -1,0 +1,13 @@
+summary: Cloud Scheduler entry point for a job
+description: |
+  Called by Cloud Scheduler with an OIDC token for this environment's invoker service account; anything else is 401.
+  Runs the job once (a concurrent or retried call is skipped) and answers 200 even when the job itself failed, so
+  Scheduler does not retry an application failure.
+parameters:
+  - $ref: ../../../../components/parameters/pathScheduleName.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../components/schemas/internal/jobs/run/model.yml

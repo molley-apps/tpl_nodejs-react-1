@@ -35,6 +35,7 @@ const env = ProcEnvHelper.getOrSetDefault('NODE_ENV', 'production');
 // frontends as well as /api, so there is exactly one origin for everything:
 // this process locally (http://localhost:8080), the Cloud Run URL or custom
 // domain when deployed. Used in emails and anywhere an absolute URL is needed.
+const appUrlProvided = typeof process.env.APP_URL === 'string' && process.env.APP_URL.trim() !== '';
 const appUrl = String(ProcEnvHelper.getOrSetDefault('APP_URL', 'http://localhost:8080')).replace(/\/+$/, '');
 
 // Browser origins allowed to call the API with credentials from ANOTHER
@@ -130,6 +131,21 @@ export default {
     // Frontend paths are not listed here: the apps are served without a session (their sign in page lives
     // inside the SPA) and FrontendAssetsService gates the role-restricted ones.
     publicPaths: ['/api/health', '/api/capabilities'],
+    // API path prefixes that carry their own authentication instead of a session (Cloud Scheduler's OIDC token).
+    publicPathPrefixes: ['/api/internal/'],
+  },
+
+  // Scheduled jobs (src/jobs): the API manages one Cloud Scheduler job per enabled schedule in its own project.
+  // Driven only when deployed with a public URL and the invoker account Terraform creates (deploy/terraform/sa.tf);
+  // locally a timer runs due jobs through the same code and the Scheduler client does nothing.
+  scheduler: {
+    region: String(ProcEnvHelper.getOrSetDefault('GCP_REGION', 'europe-west2')),
+    invokerEmail: String(ProcEnvHelper.getOrSetDefault('SCHEDULER_INVOKER_EMAIL', '')),
+    // Cloud Run sets K_SERVICE to the service name (<env>-<app>), which prefixes the Scheduler job names
+    jobPrefix: String(ProcEnvHelper.getOrSetDefault('K_SERVICE', 'local')),
+    enabled: env !== 'local' && appUrlProvided && !!process.env.SCHEDULER_INVOKER_EMAIL && !!process.env.GCP_PROJECT_ID,
+    // Matches the Cloud Run request timeout (deploy/terraform request_timeout_seconds); a job gets a little less
+    requestTimeoutMs: Number(ProcEnvHelper.getOrSetDefault('SCHEDULER_REQUEST_TIMEOUT_MS', 300000)),
   },
 
   // Local development fallback for EmailService only (NODE_ENV=local with no provider saved in the admin app):

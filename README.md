@@ -95,6 +95,17 @@ Deployed, nothing is sent until an administrator saves and verifies an email pro
 works, while password reset and magic links are hidden on the users app and answer `409 EMAIL_NOT_CONFIGURED`.
 The React app shows a sign in / create account page until a session exists (`frontends/users/src/components/auth/`).
 
+## Scheduled jobs
+
+Anything that must run on a schedule is a file under `apis/api-mono/api/src/jobs` built with `defineJob` and listed
+in `src/jobs/index.ts` (see `purgeExpiredSessions.ts`). Jobs ship disabled: an administrator sets the cron and
+timezone and turns each one on in the admin app under **Schedules**. Deployed, every enabled schedule is a Cloud
+Scheduler job the API creates in its own project (the invoker account and roles come from `deploy/terraform/sa.tf`),
+calling `POST /api/internal/jobs/<name>` with an OIDC token the API verifies; a claim on the job record makes a retry
+or a second instance skip. Locally there is no Scheduler: the API runs due jobs every 30 seconds itself. A job is one
+request and must finish well inside the 300 s request timeout. The full rule is in
+`.claude/rules/platform-capabilities.md`.
+
 ## Deploying
 
 `deploy/` holds Terraform for a `dev` and a `prod` environment on GCP: one public Cloud Run service (the API, which

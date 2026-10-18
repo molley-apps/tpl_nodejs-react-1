@@ -32,7 +32,9 @@ class SessionService {
   }
 
   isPublicPath(path: string): boolean {
-    return config.auth.publicPaths.includes(path);
+    return (
+      config.auth.publicPaths.includes(path) || config.auth.publicPathPrefixes.some((prefix) => path.startsWith(prefix))
+    );
   }
 
   toSessionData(session: AuthSession): SessionData {

@@ -6,6 +6,7 @@ import { EmailerConstructor } from 'nunjucks-emailer/build/interfaces/EmailerCon
 import { runMigrations } from '@/utils/migrationRunner';
 import AuthService from '@/services/AuthService';
 import MongoConnectionService from '@/services/MongoConnectionService';
+import ScheduleService from '@/services/ScheduleService';
 
 export default async () => {
   // Load all database connections
@@ -63,4 +64,15 @@ export default async () => {
   console.log(
     `Setup email: EmailerSetupAsync in mode '${config.email.mode}' with fallbacks as ${JSON.stringify(config.email.fallbackFrom)}`,
   );
+
+  // Scheduled jobs: records for the code's jobs, Cloud Scheduler jobs for the enabled ones. A Scheduler API failure
+  // (eg roles not applied yet) is logged, not fatal: the API still serves and the next start retries.
+  try {
+    await ScheduleService.reconcile();
+  } catch (e) {
+    console.error('Scheduled jobs: reconcile failed', e);
+  }
+  if (config.env === 'local') {
+    ScheduleService.startLocalTimer();
+  }
 };

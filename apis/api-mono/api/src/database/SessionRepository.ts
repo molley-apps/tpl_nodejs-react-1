@@ -22,6 +22,12 @@ class SessionRepository extends BaseRepository<SessionClass> {
   deleteByUserId(userId: string) {
     return this.model.deleteMany({ userId });
   }
+
+  /** Sessions past their expiry (the purge-expired-sessions job). Returns how many went. */
+  async deleteExpired(): Promise<number> {
+    const result = await this.model.deleteMany({ expiresAt: { $lt: new Date() } });
+    return result.deletedCount ?? 0;
+  }
 }
 
 export default new SessionRepository();

@@ -1,0 +1,13 @@
+type: object
+properties:
+  cron:
+    type: string
+    maxLength: 100
+    description: Five-field cron expression, eg "15 3 * * *"
+  timezone:
+    type: string
+    maxLength: 64
+    description: IANA timezone name the cron is read in, eg Europe/London
+  enabled:
+    type: boolean
+    description: Creates a Cloud Scheduler job in this environment while true. Nothing runs while false.

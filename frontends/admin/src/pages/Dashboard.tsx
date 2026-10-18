@@ -1,6 +1,7 @@
 import { Box, Typography, Paper, Card, CardActionArea, CardContent, Grid } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import EmailIcon from '@mui/icons-material/Email';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useNavigate } from 'react-router-dom';
 import config from '@/config';
 import { useUserStore } from '@/store/userStore';
@@ -21,6 +22,12 @@ const Dashboard = () => {
       description: 'Everyone with an account: search, system roles, active sessions, deletion.',
       icon: <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
       path: '/users',
+    },
+    {
+      title: 'Schedules',
+      description: 'When each scheduled job runs, on or off, last and next run.',
+      icon: <ScheduleIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      path: '/schedules',
     },
     {
       title: 'Email',

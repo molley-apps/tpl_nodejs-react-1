@@ -21,6 +21,11 @@ output "service_account" {
   value = google_service_account.api.email
 }
 
+output "scheduler_invoker" {
+  description = "Service account Cloud Scheduler calls the API's job endpoint as"
+  value       = google_service_account.scheduler_invoker.email
+}
+
 output "secrets" {
   description = "Secret Manager ids to fill in after the first apply"
   value       = [for secret in google_secret_manager_secret.api : secret.secret_id]

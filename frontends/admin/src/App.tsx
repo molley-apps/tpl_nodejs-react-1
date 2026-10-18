@@ -8,6 +8,7 @@ import { canAccessPath, homePathFor } from '@/utils/systemAccess';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Users = lazy(() => import('./pages/Users'));
 const EmailSettings = lazy(() => import('./pages/EmailSettings'));
+const Schedules = lazy(() => import('./pages/Schedules'));
 
 /**
  * Scoped staff roles may only open their own pages. Anything else bounces to
@@ -38,6 +39,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/users" element={<Users />} />
             <Route path="/settings/email" element={<EmailSettings />} />
+            <Route path="/schedules" element={<Schedules />} />
           </Routes>
         </RoleGate>
       </Suspense>

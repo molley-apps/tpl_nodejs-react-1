@@ -1,0 +1,10 @@
+summary: Run a job now (system admin)
+description: Executes the job immediately in this request, whether or not it is enabled, and returns the recorded run. Skipped when the job is already running.
+parameters:
+  - $ref: ../../../../../components/parameters/pathScheduleName.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../../components/schemas/admin/schedule/model.yml

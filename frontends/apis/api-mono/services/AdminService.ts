@@ -1,6 +1,11 @@
 import HttpService from 'services/src/HttpService';
 import { BaseApiService } from './BaseApiService';
 
+import { AdminSchedule } from './interfaces/AdminSchedule';
+import { AdminSchedules } from './interfaces/AdminSchedules';
+import { AdminSchedulesNamePutPath } from './interfaces/AdminSchedulesNamePutPath';
+import { AdminSchedulesNamePutPut } from './interfaces/AdminSchedulesNamePutPut';
+import { AdminSchedulesNameRunPostPath } from './interfaces/AdminSchedulesNameRunPostPath';
 import { AdminSessions } from './interfaces/AdminSessions';
 import { AdminSettingsEmail } from './interfaces/AdminSettingsEmail';
 import { AdminSettingsEmailPutPut } from './interfaces/AdminSettingsEmailPutPut';
@@ -16,6 +21,52 @@ import { User } from './interfaces/User';
 import { Users } from './interfaces/Users';
 
 export default class AdminService extends BaseApiService {
+  /**
+   *  Operation ID: adminSchedulesGet
+   *  Summary: Get schedules, from admin
+   *  Description: One row per job registered in the code (src/jobs), with the administrator-owned schedule, the last run and the next run.
+   */
+  public static adminSchedulesGet(): Promise<AdminSchedules> {
+    return HttpService.sendRequest({
+      method: 'GET',
+      path: AdminService.basePath + 'admin/schedules',
+    });
+  }
+
+  /**
+   *  Operation ID: adminSchedulesNamePut
+   *  Summary: Update a schedules based on {name}, from admin
+   *  Description: Saves the cron expression, timezone and enabled flag. Enabling creates the Cloud Scheduler job in this environment,
+disabling deletes it. Nothing runs while a job is disabled.
+
+   */
+  public static adminSchedulesNamePut(
+    body: AdminSchedulesNamePutPut,
+    pathParams: AdminSchedulesNamePutPath
+  ): Promise<AdminSchedule> {
+    return HttpService.sendRequest({
+      method: 'PUT',
+      path: AdminService.basePath + 'admin/schedules/:name',
+      body,
+      params: pathParams,
+    });
+  }
+
+  /**
+   *  Operation ID: adminSchedulesNameRunPost
+   *  Summary: Create a run, from schedules {name}, from admin
+   *  Description: Executes the job immediately in this request, whether or not it is enabled, and returns the recorded run. Skipped when the job is already running.
+   */
+  public static adminSchedulesNameRunPost(
+    pathParams: AdminSchedulesNameRunPostPath
+  ): Promise<AdminSchedule> {
+    return HttpService.sendRequest({
+      method: 'POST',
+      path: AdminService.basePath + 'admin/schedules/:name/run',
+      params: pathParams,
+    });
+  }
+
   /**
    *  Operation ID: adminSettingsEmailDelete
    *  Summary: Delete a email, from settings, from admin
