@@ -129,10 +129,12 @@ export default {
     // API paths that do not require a session. Every other /api path returns 401 without one.
     // Frontend paths are not listed here: the apps are served without a session (their sign in page lives
     // inside the SPA) and FrontendAssetsService gates the role-restricted ones.
-    publicPaths: ['/api/health'],
+    publicPaths: ['/api/health', '/api/capabilities'],
   },
 
-  // EmailService
+  // Local development fallback for EmailService only (NODE_ENV=local with no provider saved in the admin app):
+  // FILE writes each message to emails/logs, or point the nodemailer settings at Mailpit. Deployed environments
+  // send through the provider the administrator configures in Settings → Email, never through these values.
   email: {
     mode: ProcEnvHelper.getOrSetDefault('EMAIL_MODE', EmailerSendTypes.nodemailer),
     fallbackFrom: ProcEnvHelper.getOrSetDefault('EMAIL_FALLBACK_FROM', 'no-reply@example.com'),

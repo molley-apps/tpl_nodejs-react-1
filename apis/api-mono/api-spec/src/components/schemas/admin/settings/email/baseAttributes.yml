@@ -1,0 +1,29 @@
+type: object
+properties:
+  provider:
+    $ref: ./provider/enum.yml
+  host:
+    type: string
+    maxLength: 255
+    description: SMTP host
+  port:
+    type: integer
+    minimum: 1
+    maximum: 65535
+  secure:
+    type: boolean
+    description: Implicit TLS (port 465). Otherwise STARTTLS is required.
+  username:
+    type: string
+    maxLength: 255
+  fromAddress:
+    type: string
+    format: email
+    description: Must be on a domain verified at the provider, or nothing arrives
+  fromName:
+    type: string
+    maxLength: 100
+    description: Defaults to the app name
+  replyTo:
+    type: string
+    format: email

@@ -59,7 +59,8 @@ npm run dev:start      # http://localhost:8080, hot-reloads via tsc-watch
 ```
 
 With `EMAIL_MODE=FILE` (the default in `.env.example`) outgoing emails are written to `apis/api-mono/api/emails/logs`
-instead of being sent.
+instead of being sent. Deployed, the app sends through the provider its administrator connects in the admin app under
+**Settings → Email** (bring your own Resend, Brevo, SendGrid, Mailgun or SMTP key); see `.claude/rules/platform-capabilities.md`.
 
 ### 4. Start the React app
 
@@ -90,6 +91,8 @@ AUTH_REQUIRE_EMAIL_VERIFICATION=false
 ```
 
 Locally (`EMAIL_MODE=FILE`) the verification, reset and magic link emails are written to `apis/api-mono/api/emails/logs`.
+Deployed, nothing is sent until an administrator saves and verifies an email provider in the admin app: sign up still
+works, while password reset and magic links are hidden on the users app and answer `409 EMAIL_NOT_CONFIGURED`.
 The React app shows a sign in / create account page until a session exists (`frontends/users/src/components/auth/`).
 
 ## Deploying

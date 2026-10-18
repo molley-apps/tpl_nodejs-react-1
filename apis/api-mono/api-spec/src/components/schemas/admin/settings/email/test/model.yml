@@ -1,0 +1,9 @@
+type: object
+required:
+  - success
+properties:
+  success:
+    type: boolean
+  providerResponse:
+    type: string
+    description: The SMTP server's reply, verbatim, for both outcomes

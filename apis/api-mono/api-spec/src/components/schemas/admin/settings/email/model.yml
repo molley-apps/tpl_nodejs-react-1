@@ -1,0 +1,28 @@
+allOf:
+  - $ref: ./baseAttributes.yml
+  - type: object
+    required:
+      - configured
+      - verified
+    properties:
+      configured:
+        type: boolean
+        description: Settings are saved
+      verified:
+        type: boolean
+        description: A test email went through since the last save, so the app sends real email
+      passwordLast4:
+        type: string
+        description: The only part of the secret ever returned
+      verifiedAt:
+        type: string
+        format: date-time
+      lastSendAt:
+        type: string
+        format: date-time
+      lastError:
+        type: string
+        description: The provider's last failure, cleared by the next successful send
+      updatedAt:
+        type: string
+        format: date-time

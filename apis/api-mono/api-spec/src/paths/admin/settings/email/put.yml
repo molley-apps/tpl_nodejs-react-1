@@ -1,0 +1,16 @@
+summary: Save the outgoing email settings (system admin)
+description: |
+  Stores the provider, encrypted secret and from address. Omit the password to keep the stored one.
+  Saving resets verification: send a test email afterwards to switch sending on.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: ../../../../components/schemas/admin/settings/email/put.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../components/schemas/admin/settings/email/model.yml

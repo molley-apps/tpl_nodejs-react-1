@@ -33,6 +33,7 @@ noindex = true
 # Bump when a value there changes:
 secrets_version = 1
 
+# Fallback only: the administrator connects the real email provider in the admin app (Settings → Email).
 email = {
   host     = "smtp.sendgrid.net"
   port     = 587

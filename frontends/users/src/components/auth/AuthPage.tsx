@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAppStore } from '@/store/appStore';
 import SignInPage from './SignInPage';
 import SignUpPage from './SignUpPage';
 import ForgotPasswordPage from './ForgotPasswordPage';
@@ -15,6 +16,12 @@ const resetToken = new URLSearchParams(window.location.search).get('token');
  */
 export default function AuthPage() {
   const [screen, setScreen] = useState<Screen>(resetToken ? 'reset-password' : 'sign-in');
+  const { emailEnabled, fetchCapabilities } = useAppStore();
+
+  // Password reset and magic links need outgoing email, which the app's administrator switches on
+  useEffect(() => {
+    if (emailEnabled === null) fetchCapabilities();
+  }, [emailEnabled, fetchCapabilities]);
 
   const backToSignIn = () => {
     if (resetToken) {
@@ -32,6 +39,12 @@ export default function AuthPage() {
     case 'reset-password':
       return <ResetPasswordPage token={resetToken || ''} onDone={backToSignIn} />;
     default:
-      return <SignInPage onSignUp={() => setScreen('sign-up')} onForgotPassword={() => setScreen('forgot-password')} />;
+      return (
+        <SignInPage
+          emailEnabled={emailEnabled === true}
+          onSignUp={() => setScreen('sign-up')}
+          onForgotPassword={() => setScreen('forgot-password')}
+        />
+      );
   }
 }

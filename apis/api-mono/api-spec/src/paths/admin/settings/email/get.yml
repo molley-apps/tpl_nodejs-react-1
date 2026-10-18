@@ -1,0 +1,8 @@
+summary: Outgoing email settings (system admin)
+description: The configured provider without its secret, plus whether it is configured and verified by a test send.
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../components/schemas/admin/settings/email/model.yml

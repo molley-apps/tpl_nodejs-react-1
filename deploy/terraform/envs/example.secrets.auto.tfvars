@@ -8,4 +8,4 @@
 mongo_host     = "cluster0.abcde.mongodb.net" # SRV hostname only, no mongodb+srv://
 mongo_user     = "db_user"
 mongo_password = "db_password"
-email_password = "SG.sendgrid-api-key"
+email_password = "" # leave empty: the email provider key is entered in the admin app (Settings → Email)

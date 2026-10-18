@@ -1,35 +1,47 @@
-import { Emailer } from 'nunjucks-emailer';
-
-interface Recipient {
-  email: string;
-  name?: string | null;
-}
+import { APIError } from 'better-auth/api';
+import EmailService, { EmailSendResult } from '@/services/EmailService';
+import { EmailRecipient } from '@/services/EmailTransportService';
+import { EMAIL_NOT_CONFIGURED, EMAIL_NOT_CONFIGURED_MESSAGE } from '@/constants/EMAIL';
 
 /**
- * AuthEmailService
+ * The emails Better Auth asks this API to send, see AuthService. Templates live in emails/templates/auth/.
  *
- * The emails Better Auth asks this API to send. Templates live in emails/templates/auth/ and
- * render through the nunjucks-emailer set up in src/utils/startup.ts (EMAIL_MODE=FILE writes them to emails/logs locally).
+ * Verification on sign up must never block the sign up, so a failed or unconfigured send is only logged there.
+ * Password reset and magic link exist only to deliver a message, so they fail loudly: AuthService refuses those
+ * routes with 409 EMAIL_NOT_CONFIGURED before they get here, and a provider failure surfaces as an error.
  */
 class AuthEmailService {
-  sendPasswordReset(user: Recipient, url: string): Promise<void> {
-    return this.send(user, 'auth/resetPassword.html.njk', { url });
+  async sendPasswordReset(user: EmailRecipient, url: string): Promise<void> {
+    this.assertSent(await this.send(user, 'auth/resetPassword', { url }));
   }
 
-  sendEmailVerification(user: Recipient, url: string): Promise<void> {
-    return this.send(user, 'auth/verifyEmail.html.njk', { url });
+  async sendEmailVerification(user: EmailRecipient, url: string): Promise<void> {
+    const result = await this.send(user, 'auth/verifyEmail', { url });
+    if (!result.sent) {
+      console.warn(`AuthEmailService: verification email to ${user.email} not sent (${result.reason})`);
+    }
   }
 
-  sendMagicLink(email: string, url: string): Promise<void> {
-    return this.send({ email }, 'auth/magicLink.html.njk', { url });
+  async sendMagicLink(email: string, url: string): Promise<void> {
+    this.assertSent(await this.send({ email }, 'auth/magicLink', { url }));
   }
 
-  private async send(to: Recipient, tplRelativePath: string, tplObject: Record<string, string>): Promise<void> {
-    await Emailer.send({
-      to: { email: to.email, name: to.name || undefined },
-      tplRelativePath,
-      tplObject: { ...tplObject, name: to.name || to.email },
-    });
+  private send(
+    to: EmailRecipient,
+    tplRelativePath: string,
+    tplObject: Record<string, string>,
+  ): Promise<EmailSendResult> {
+    return EmailService.send({ to, tplRelativePath, tplObject: { ...tplObject, name: to.name || to.email } });
+  }
+
+  private assertSent(result: EmailSendResult): void {
+    if (result.sent) {
+      return;
+    }
+    if (result.reason === 'not-configured') {
+      throw new APIError('CONFLICT', { code: EMAIL_NOT_CONFIGURED, message: EMAIL_NOT_CONFIGURED_MESSAGE });
+    }
+    throw new Error(`Email not sent: ${result.reason === 'provider' ? result.error : result.reason}`);
   }
 }
 

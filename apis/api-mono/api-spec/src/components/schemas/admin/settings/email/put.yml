@@ -1,0 +1,14 @@
+allOf:
+  - $ref: ./baseAttributes.yml
+  - type: object
+    required:
+      - provider
+      - host
+      - port
+      - username
+      - fromAddress
+    properties:
+      password:
+        type: string
+        maxLength: 1024
+        description: The provider's SMTP password or API key. Required on first save, omit later to keep the stored one.

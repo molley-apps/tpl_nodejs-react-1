@@ -1,5 +1,11 @@
 export type { AdminSession } from './AdminSession';
 export type { AdminSessions } from './AdminSessions';
+export type { AdminSettingsEmail } from './AdminSettingsEmail';
+export type { AdminSettingsEmailBaseAttributes } from './AdminSettingsEmailBaseAttributes';
+export type { AdminSettingsEmailProviderEnum } from './AdminSettingsEmailProviderEnum';
+export type { AdminSettingsEmailPut } from './AdminSettingsEmailPut';
+export type { AdminSettingsEmailPutPut } from './AdminSettingsEmailPutPut';
+export type { AdminSettingsEmailTest } from './AdminSettingsEmailTest';
 export type { AdminUsersGetQuery } from './AdminUsersGetQuery';
 export type { AdminUsersRolesPut } from './AdminUsersRolesPut';
 export type { AdminUsersUserIdDeletePath } from './AdminUsersUserIdDeletePath';
@@ -7,6 +13,7 @@ export type { AdminUsersUserIdRolesPutPath } from './AdminUsersUserIdRolesPutPat
 export type { AdminUsersUserIdRolesPutPut } from './AdminUsersUserIdRolesPutPut';
 export type { AdminUsersUserIdSessionsDeletePath } from './AdminUsersUserIdSessionsDeletePath';
 export type { AdminUsersUserIdSessionsGetPath } from './AdminUsersUserIdSessionsGetPath';
+export type { Capabilities } from './Capabilities';
 export type { GenericDeleteSuccess } from './GenericDeleteSuccess';
 export type { GenericSearchMeta } from './GenericSearchMeta';
 export type { Health } from './Health';

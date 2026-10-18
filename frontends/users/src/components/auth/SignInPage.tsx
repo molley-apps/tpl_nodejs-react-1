@@ -3,8 +3,11 @@ import { AuthService } from 'services';
 import AuthLayout from './AuthLayout';
 import AuthMessages from './AuthMessages';
 import { appHomeUrl } from './authUrls';
+import { authErrorMessage } from './authErrorMessage';
 
 interface SignInPageProps {
+  /** Outgoing email is configured (GET /api/capabilities), so the reset and magic link options can be offered */
+  emailEnabled: boolean;
   onSignUp: () => void;
   onForgotPassword: () => void;
 }
@@ -14,8 +17,10 @@ interface SignInPageProps {
  * magic link alternative (POST /api/auth/sign-in/magic-link) for people who
  * would rather not type a password. A successful sign in sets the session
  * cookie; AuthGate's useSession picks it up and renders the app.
+ *
+ * Both email based options are hidden until the app's administrator has set up outgoing email.
  */
-export default function SignInPage({ onSignUp, onForgotPassword }: SignInPageProps) {
+export default function SignInPage({ emailEnabled, onSignUp, onForgotPassword }: SignInPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +54,7 @@ export default function SignInPage({ onSignUp, onForgotPassword }: SignInPagePro
 
     setBusy(false);
     if (result.error) {
-      setError(result.error.message || 'Could not send the link, please try again');
+      setError(authErrorMessage(result.error, 'Could not send the link, please try again'));
       return;
     }
     setNotice('Check your inbox for a sign in link.');
@@ -60,12 +65,16 @@ export default function SignInPage({ onSignUp, onForgotPassword }: SignInPagePro
       title="Sign in"
       footer={
         <>
-          <button type="button" className="btn btn--link" onClick={onForgotPassword}>
-            Forgot your password?
-          </button>
-          <button type="button" className="btn btn--link" onClick={sendMagicLink} disabled={busy}>
-            Email me a sign in link instead
-          </button>
+          {emailEnabled && (
+            <>
+              <button type="button" className="btn btn--link" onClick={onForgotPassword}>
+                Forgot your password?
+              </button>
+              <button type="button" className="btn btn--link" onClick={sendMagicLink} disabled={busy}>
+                Email me a sign in link instead
+              </button>
+            </>
+          )}
           <span>
             New here?{' '}
             <button type="button" className="btn btn--link" onClick={onSignUp}>

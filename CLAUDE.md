@@ -6,6 +6,8 @@
 
 @.claude/rules/api-unit-testing.md
 
+@.claude/rules/platform-capabilities.md
+
 
 ## Shell command style
 

@@ -1,0 +1,21 @@
+{% extends "_layout/layout1.html.njk" %}
+
+{% block subject %}Test email{% endblock %}
+
+{% block message %}
+  <tr class="content">
+    <td>
+      <table width="100%" class="pb-md">
+        <h1 class="title mb-lg" style="text-align: center;">Outgoing email works</h1>
+
+        <p>Hi {{ name }},</p>
+
+        <p>This message was sent by {{ appName }} through {{ providerLabel }} as {{ fromAddress }}. Receiving it means the provider accepted the credentials and the from address, so password resets and other notifications will arrive the same way.</p>
+
+        <p>Sent at {{ sentAt }}.</p>
+      </table>
+    </td>
+  </tr>
+
+  {% include "_layout/footer/immutableFooter.html.njk" %}
+{% endblock %}

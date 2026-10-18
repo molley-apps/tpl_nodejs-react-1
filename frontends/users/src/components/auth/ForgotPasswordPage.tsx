@@ -3,6 +3,7 @@ import { AuthService } from 'services';
 import AuthLayout from './AuthLayout';
 import AuthMessages from './AuthMessages';
 import { appHomeUrl } from './authUrls';
+import { authErrorMessage } from './authErrorMessage';
 
 /**
  * POST /api/auth/request-password-reset. The API emails a link to
@@ -26,7 +27,7 @@ export default function ForgotPasswordPage({ onSignIn }: { onSignIn: () => void 
 
     setBusy(false);
     if (result.error) {
-      setError(result.error.message || 'Could not request a reset, please try again');
+      setError(authErrorMessage(result.error, 'Could not request a reset, please try again'));
       return;
     }
     setNotice('If an account exists for that email, a password reset link is on its way.');

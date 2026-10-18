@@ -11,6 +11,488 @@
     }
   ],
   "paths": {
+    "/admin/settings/email": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a email, from settings, from admin",
+        "description": "Clears the provider and secret. The app runs without outgoing email until new settings are saved and verified.",
+        "operationId": "adminSettingsEmailDelete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSettingsEmailDelete",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "GenericDeleteSuccess"
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get email, from settings, from admin",
+        "description": "The configured provider without its secret, plus whether it is configured and verified by a test send.",
+        "operationId": "adminSettingsEmailGet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+                      "enum": [
+                        "resend",
+                        "brevo",
+                        "sendgrid",
+                        "mailgun",
+                        "smtp"
+                      ]
+                    },
+                    "host": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "description": "SMTP host"
+                    },
+                    "port": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    },
+                    "secure": {
+                      "type": "boolean",
+                      "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+                    },
+                    "username": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "fromAddress": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Must be on a domain verified at the provider, or nothing arrives"
+                    },
+                    "fromName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Defaults to the app name"
+                    },
+                    "replyTo": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "configured": {
+                      "type": "boolean",
+                      "description": "Settings are saved"
+                    },
+                    "verified": {
+                      "type": "boolean",
+                      "description": "A test email went through since the last save, so the app sends real email"
+                    },
+                    "passwordLast4": {
+                      "type": "string",
+                      "description": "The only part of the secret ever returned"
+                    },
+                    "verifiedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastSendAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "description": "The provider's last failure, cleared by the next successful send"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "configured",
+                    "verified"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSettingsEmailRead",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "AdminSettingsEmail"
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a email, from settings, from admin",
+        "description": "Stores the provider, encrypted secret and from address. Omit the password to keep the stored one.\nSaving resets verification: send a test email afterwards to switch sending on.\n",
+        "operationId": "adminSettingsEmailPut",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+                    "enum": [
+                      "resend",
+                      "brevo",
+                      "sendgrid",
+                      "mailgun",
+                      "smtp"
+                    ]
+                  },
+                  "host": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "SMTP host"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                  },
+                  "secure": {
+                    "type": "boolean",
+                    "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+                  },
+                  "username": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "fromAddress": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Must be on a domain verified at the provider, or nothing arrives"
+                  },
+                  "fromName": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Defaults to the app name"
+                  },
+                  "replyTo": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "description": "The provider's SMTP password or API key. Required on first save, omit later to keep the stored one."
+                  }
+                },
+                "required": [
+                  "provider",
+                  "host",
+                  "port",
+                  "username",
+                  "fromAddress"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+                      "enum": [
+                        "resend",
+                        "brevo",
+                        "sendgrid",
+                        "mailgun",
+                        "smtp"
+                      ]
+                    },
+                    "host": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "description": "SMTP host"
+                    },
+                    "port": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    },
+                    "secure": {
+                      "type": "boolean",
+                      "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+                    },
+                    "username": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "fromAddress": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Must be on a domain verified at the provider, or nothing arrives"
+                    },
+                    "fromName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Defaults to the app name"
+                    },
+                    "replyTo": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "configured": {
+                      "type": "boolean",
+                      "description": "Settings are saved"
+                    },
+                    "verified": {
+                      "type": "boolean",
+                      "description": "A test email went through since the last save, so the app sends real email"
+                    },
+                    "passwordLast4": {
+                      "type": "string",
+                      "description": "The only part of the secret ever returned"
+                    },
+                    "verifiedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastSendAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "description": "The provider's last failure, cleared by the next successful send"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "configured",
+                    "verified"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSettingsEmailUpdate",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "adminSettingsEmailPutPut",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+                  "enum": [
+                    "resend",
+                    "brevo",
+                    "sendgrid",
+                    "mailgun",
+                    "smtp"
+                  ]
+                },
+                "host": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "description": "SMTP host"
+                },
+                "port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "secure": {
+                  "type": "boolean",
+                  "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+                },
+                "username": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "fromAddress": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Must be on a domain verified at the provider, or nothing arrives"
+                },
+                "fromName": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "Defaults to the app name"
+                },
+                "replyTo": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "maxLength": 1024,
+                  "description": "The provider's SMTP password or API key. Required on first save, omit later to keep the stored one."
+                }
+              },
+              "required": [
+                "provider",
+                "host",
+                "port",
+                "username",
+                "fromAddress"
+              ]
+            }
+          }
+        ],
+        "x-request-definitions": {
+          "body": {
+            "name": "AdminSettingsEmailPut",
+            "params": [
+              {
+                "name": "AdminSettingsEmailPutPut",
+                "path": "components.schemas.AdminSettingsEmailPut"
+              }
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSettingsEmailPutPut {\n    /**\n     * Must be on a domain verified at the provider, or nothing arrives\n     */\n    fromAddress: string;\n    /**\n     * Defaults to the app name\n     */\n    fromName?: string;\n    /**\n     * SMTP host\n     */\n    host: string;\n    /**\n     * The provider's SMTP password or API key. Required on first save, omit later to keep the\n     * stored one.\n     */\n    password?: string;\n    port:      number;\n    /**\n     * A preset the admin app fills host, port and username from, or smtp for any other server.\n     */\n    provider: Provider;\n    replyTo?: string;\n    /**\n     * Implicit TLS (port 465). Otherwise STARTTLS is required.\n     */\n    secure?:  boolean;\n    username: string;\n}\n\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum Provider {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "AdminSettingsEmail"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/settings/email/test": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a test, from email, from settings, from admin",
+        "description": "Sends the test template through the saved settings to the caller's own address. A success marks the settings\nverified and switches outgoing email on; a failure returns the provider's response verbatim.\n",
+        "operationId": "adminSettingsEmailTestPost",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "providerResponse": {
+                      "type": "string",
+                      "description": "The SMTP server's reply, verbatim, for both outcomes"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          },
+          "422": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSettingsEmailTestCreate",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "AdminSettingsEmailTest"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
     "/admin/users": {
       "get": {
         "tags": [
@@ -607,6 +1089,57 @@
       "endpointName": "admin",
       "groupName": "admin"
     },
+    "/capabilities": {
+      "get": {
+        "tags": [
+          "Capabilities"
+        ],
+        "summary": "Get capabilities",
+        "description": "Public. The users app reads it before showing flows that depend on them, eg password reset needs email.",
+        "operationId": "capabilitiesGet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "email"
+                  ],
+                  "properties": {
+                    "email": {
+                      "type": "boolean",
+                      "description": "Outgoing email is configured and verified, so password reset and magic links work"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiCapabilitiesRead",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "Capabilities"
+        }
+      },
+      "endpointName": "capabilities",
+      "groupName": "capabilities"
+    },
     "/health": {
       "get": {
         "tags": [
@@ -1197,6 +1730,220 @@
           }
         }
       },
+      "AdminSettingsEmailBaseAttributes": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+            "enum": [
+              "resend",
+              "brevo",
+              "sendgrid",
+              "mailgun",
+              "smtp"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "SMTP host"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "secure": {
+            "type": "boolean",
+            "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "fromAddress": {
+            "type": "string",
+            "format": "email",
+            "description": "Must be on a domain verified at the provider, or nothing arrives"
+          },
+          "fromName": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Defaults to the app name"
+          },
+          "replyTo": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "AdminSettingsEmail": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+            "enum": [
+              "resend",
+              "brevo",
+              "sendgrid",
+              "mailgun",
+              "smtp"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "SMTP host"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "secure": {
+            "type": "boolean",
+            "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "fromAddress": {
+            "type": "string",
+            "format": "email",
+            "description": "Must be on a domain verified at the provider, or nothing arrives"
+          },
+          "fromName": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Defaults to the app name"
+          },
+          "replyTo": {
+            "type": "string",
+            "format": "email"
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "Settings are saved"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "A test email went through since the last save, so the app sends real email"
+          },
+          "passwordLast4": {
+            "type": "string",
+            "description": "The only part of the secret ever returned"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSendAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastError": {
+            "type": "string",
+            "description": "The provider's last failure, cleared by the next successful send"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "configured",
+          "verified"
+        ]
+      },
+      "AdminSettingsEmailProviderEnum": {
+        "type": "string",
+        "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+        "enum": [
+          "resend",
+          "brevo",
+          "sendgrid",
+          "mailgun",
+          "smtp"
+        ]
+      },
+      "AdminSettingsEmailPut": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "A preset the admin app fills host, port and username from, or smtp for any other server.",
+            "enum": [
+              "resend",
+              "brevo",
+              "sendgrid",
+              "mailgun",
+              "smtp"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "SMTP host"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "secure": {
+            "type": "boolean",
+            "description": "Implicit TLS (port 465). Otherwise STARTTLS is required."
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "fromAddress": {
+            "type": "string",
+            "format": "email",
+            "description": "Must be on a domain verified at the provider, or nothing arrives"
+          },
+          "fromName": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Defaults to the app name"
+          },
+          "replyTo": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "description": "The provider's SMTP password or API key. Required on first save, omit later to keep the stored one."
+          }
+        },
+        "required": [
+          "provider",
+          "host",
+          "port",
+          "username",
+          "fromAddress"
+        ]
+      },
+      "AdminSettingsEmailTest": {
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "providerResponse": {
+            "type": "string",
+            "description": "The SMTP server's reply, verbatim, for both outcomes"
+          }
+        }
+      },
       "AdminUsersRolesPut": {
         "type": "object",
         "required": [
@@ -1212,6 +1959,18 @@
                 "SUPER_ADMIN"
               ]
             }
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "boolean",
+            "description": "Outgoing email is configured and verified, so password reset and magic links work"
           }
         }
       },
@@ -1588,6 +2347,42 @@
       }
     },
     {
+      "name": "AdminSettingsEmail",
+      "content": {
+        "outputString": "\nexport interface AdminSettingsEmail {\n    /**\n     * Settings are saved\n     */\n    configured: boolean;\n    /**\n     * Must be on a domain verified at the provider, or nothing arrives\n     */\n    fromAddress?: string;\n    /**\n     * Defaults to the app name\n     */\n    fromName?: string;\n    /**\n     * SMTP host\n     */\n    host?: string;\n    /**\n     * The provider's last failure, cleared by the next successful send\n     */\n    lastError?:  string;\n    lastSendAt?: Date;\n    /**\n     * The only part of the secret ever returned\n     */\n    passwordLast4?: string;\n    port?:          number;\n    /**\n     * A preset the admin app fills host, port and username from, or smtp for any other server.\n     */\n    provider?: Provider;\n    replyTo?:  string;\n    /**\n     * Implicit TLS (port 465). Otherwise STARTTLS is required.\n     */\n    secure?:    boolean;\n    updatedAt?: Date;\n    username?:  string;\n    /**\n     * A test email went through since the last save, so the app sends real email\n     */\n    verified:    boolean;\n    verifiedAt?: Date;\n}\n\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum Provider {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSettingsEmailBaseAttributes",
+      "content": {
+        "outputString": "\nexport interface AdminSettingsEmailBaseAttributes {\n    /**\n     * Must be on a domain verified at the provider, or nothing arrives\n     */\n    fromAddress?: string;\n    /**\n     * Defaults to the app name\n     */\n    fromName?: string;\n    /**\n     * SMTP host\n     */\n    host?: string;\n    port?: number;\n    /**\n     * A preset the admin app fills host, port and username from, or smtp for any other server.\n     */\n    provider?: Provider;\n    replyTo?:  string;\n    /**\n     * Implicit TLS (port 465). Otherwise STARTTLS is required.\n     */\n    secure?:   boolean;\n    username?: string;\n}\n\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum Provider {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSettingsEmailProviderEnum",
+      "content": {
+        "outputString": "\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum AdminSettingsEmailProviderEnum {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSettingsEmailPut",
+      "content": {
+        "outputString": "\nexport interface AdminSettingsEmailPut {\n    /**\n     * Must be on a domain verified at the provider, or nothing arrives\n     */\n    fromAddress: string;\n    /**\n     * Defaults to the app name\n     */\n    fromName?: string;\n    /**\n     * SMTP host\n     */\n    host: string;\n    /**\n     * The provider's SMTP password or API key. Required on first save, omit later to keep the\n     * stored one.\n     */\n    password?: string;\n    port:      number;\n    /**\n     * A preset the admin app fills host, port and username from, or smtp for any other server.\n     */\n    provider: Provider;\n    replyTo?: string;\n    /**\n     * Implicit TLS (port 465). Otherwise STARTTLS is required.\n     */\n    secure?:  boolean;\n    username: string;\n}\n\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum Provider {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSettingsEmailPutPut",
+      "content": {
+        "outputString": "\nexport interface AdminSettingsEmailPutPut {\n    /**\n     * Must be on a domain verified at the provider, or nothing arrives\n     */\n    fromAddress: string;\n    /**\n     * Defaults to the app name\n     */\n    fromName?: string;\n    /**\n     * SMTP host\n     */\n    host: string;\n    /**\n     * The provider's SMTP password or API key. Required on first save, omit later to keep the\n     * stored one.\n     */\n    password?: string;\n    port:      number;\n    /**\n     * A preset the admin app fills host, port and username from, or smtp for any other server.\n     */\n    provider: Provider;\n    replyTo?: string;\n    /**\n     * Implicit TLS (port 465). Otherwise STARTTLS is required.\n     */\n    secure?:  boolean;\n    username: string;\n}\n\n/**\n * A preset the admin app fills host, port and username from, or smtp for any other server.\n */\nexport enum Provider {\n    Brevo = \"brevo\",\n    Mailgun = \"mailgun\",\n    Resend = \"resend\",\n    Sendgrid = \"sendgrid\",\n    Smtp = \"smtp\",\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSettingsEmailTest",
+      "content": {
+        "outputString": "\nexport interface AdminSettingsEmailTest {\n    /**\n     * The SMTP server's reply, verbatim, for both outcomes\n     */\n    providerResponse?: string;\n    success:           boolean;\n}\n\n"
+      }
+    },
+    {
       "name": "AdminUsersGetQuery",
       "content": {
         "outputString": "\nexport interface AdminUsersGetQuery {\n    /**\n     * Max number of results returned\n     */\n    limit?: number;\n    /**\n     * The number of items to skip before starting to collect the result set\n     */\n    offset?: number;\n    /**\n     * Filter by role name\n     */\n    role?: string;\n    /**\n     * Search term\n     */\n    search?: string;\n}\n\n"
@@ -1627,6 +2422,12 @@
       "name": "AdminUsersUserIdSessionsGetPath",
       "content": {
         "outputString": "\nexport interface AdminUsersUserIdSessionsGetPath {\n    /**\n     * ID of the user\n     */\n    userId: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "Capabilities",
+      "content": {
+        "outputString": "\nexport interface Capabilities {\n    /**\n     * Outgoing email is configured and verified, so password reset and magic links work\n     */\n    email: boolean;\n}\n\n"
       }
     },
     {
@@ -1712,11 +2513,13 @@
   "basePath": "/api",
   "groupNamesWithFirstUrlSegment": {
     "admin": "admin",
+    "capabilities": "capabilities",
     "health": "health",
     "user": "user"
   },
   "endpoints": [
     "admin",
+    "capabilities",
     "health",
     "user"
   ]

@@ -1,5 +1,6 @@
 import { Box, Typography, Paper, Card, CardActionArea, CardContent, Grid } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
+import EmailIcon from '@mui/icons-material/Email';
 import { useNavigate } from 'react-router-dom';
 import config from '@/config';
 import { useUserStore } from '@/store/userStore';
@@ -20,6 +21,12 @@ const Dashboard = () => {
       description: 'Everyone with an account: search, system roles, active sessions, deletion.',
       icon: <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
       path: '/users',
+    },
+    {
+      title: 'Email',
+      description: 'Connect your own email provider so the app can send password resets and notifications.',
+      icon: <EmailIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+      path: '/settings/email',
     },
   ];
 

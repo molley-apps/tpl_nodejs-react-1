@@ -5,6 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import http from '@/http';
 import { buildHttpOptions } from '@/utils/buildHttpOptions';
 import AuthEmailService from '@/services/AuthEmailService';
+import EmailService from '@/services/EmailService';
 import { SYSTEM_SUPER_ADMIN } from '@/constants/ROLES';
 
 jest.mock('@/services/AuthEmailService', () => ({
@@ -14,6 +15,12 @@ jest.mock('@/services/AuthEmailService', () => ({
     sendEmailVerification: jest.fn().mockResolvedValue(undefined),
     sendMagicLink: jest.fn().mockResolvedValue(undefined),
   },
+}));
+
+// Email is "configured" unless a test says otherwise; the real resolution is covered by EmailService.spec.ts
+jest.mock('@/services/EmailService', () => ({
+  __esModule: true,
+  default: { isEnabled: jest.fn().mockResolvedValue(true) },
 }));
 
 /**
@@ -64,6 +71,12 @@ describe('Authentication (integration)', () => {
   it('rejects protected routes without a session', async () => {
     const res = await request(app).get('/api/user/current');
     expect(res.status).toBe(401);
+  });
+
+  it('serves the public capabilities route without a session', async () => {
+    const res = await request(app).get('/api/capabilities');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ email: true });
   });
 
   describe('cookie session (browser clients)', () => {
@@ -302,6 +315,19 @@ describe('Authentication (integration)', () => {
         expect.objectContaining({ email: ada.email }),
         expect.stringContaining('/api/auth/reset-password/'),
       );
+    });
+
+    it('answers 409 EMAIL_NOT_CONFIGURED instead of pretending to send while email is off', async () => {
+      (EmailService.isEnabled as jest.Mock).mockResolvedValueOnce(false);
+      (AuthEmailService.sendPasswordReset as jest.Mock).mockClear();
+
+      const res = await request(app)
+        .post('/api/auth/request-password-reset')
+        .send({ email: ada.email, redirectTo: 'http://localhost:8080/users/reset-password' });
+
+      expect(res.status).toBe(409);
+      expect(res.body.code).toBe('EMAIL_NOT_CONFIGURED');
+      expect(AuthEmailService.sendPasswordReset).not.toHaveBeenCalled();
     });
   });
 });

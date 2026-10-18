@@ -1,0 +1,8 @@
+summary: Remove the outgoing email settings (system admin)
+description: Clears the provider and secret. The app runs without outgoing email until new settings are saved and verified.
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../components/schemas/generic/deleteSuccess.yml

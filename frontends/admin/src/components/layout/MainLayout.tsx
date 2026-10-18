@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import EmailSetupBanner from '@/components/settings/EmailSetupBanner';
 import { useLayoutStore } from '@/store/layoutStore';
 
 interface MainLayoutProps {
@@ -32,6 +33,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           minHeight: 'calc(100vh - 64px)',
         }}
       >
+        <EmailSetupBanner />
         {children}
       </Box>
     </Box>

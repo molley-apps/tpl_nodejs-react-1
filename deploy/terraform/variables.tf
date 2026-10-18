@@ -120,7 +120,7 @@ variable "auth_trusted_origins" {
 }
 
 variable "email" {
-  description = "Outgoing email. The password is a secret (see secrets.tf), everything else is plain config"
+  description = "Local-development style email fallback only: the app sends through the provider its administrator configures in the admin app (Settings → Email). The password is a secret (see secrets.tf), everything else is plain config"
   type = object({
     host     = string
     port     = number
@@ -183,7 +183,7 @@ variable "mongo_password" {
 }
 
 variable "email_password" {
-  description = "Password or API key for the SMTP user in var.email"
+  description = "Password or API key for the SMTP user in var.email. Normally empty: the real provider key is entered in the admin app, not here"
   type        = string
   default     = ""
   sensitive   = true

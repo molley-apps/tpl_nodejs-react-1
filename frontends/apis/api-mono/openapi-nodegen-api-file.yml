@@ -6,6 +6,112 @@ servers:
   - url: /api
     description: API endpoints (all routes prefixed with /api)
 paths:
+  /admin/settings/email:
+    delete:
+      tags:
+        - Admin
+      summary: Delete a email, from settings, from admin
+      description: Clears the provider and secret. The app runs without outgoing email until new settings are saved and verified.
+      operationId: adminSettingsEmailDelete
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericDeleteSuccess'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminSettingsEmailDelete
+    get:
+      tags:
+        - Admin
+      summary: Get email, from settings, from admin
+      description: The configured provider without its secret, plus whether it is configured and verified by a test send.
+      operationId: adminSettingsEmailGet
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSettingsEmail'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminSettingsEmailRead
+    put:
+      tags:
+        - Admin
+      summary: Update a email, from settings, from admin
+      description: |
+        Stores the provider, encrypted secret and from address. Omit the password to keep the stored one.
+        Saving resets verification: send a test email afterwards to switch sending on.
+      operationId: adminSettingsEmailPut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSettingsEmailPut'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSettingsEmail'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminSettingsEmailUpdate
+  /admin/settings/email/test:
+    post:
+      tags:
+        - Admin
+      summary: Create a test, from email, from settings, from admin
+      description: |
+        Sends the test template through the saved settings to the caller's own address. A success marks the settings
+        verified and switches outgoing email on; a failure returns the provider's response verbatim.
+      operationId: adminSettingsEmailTestPost
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSettingsEmailTest'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+        '422':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiAdminSettingsEmailTestCreate
   /admin/users:
     get:
       tags:
@@ -143,6 +249,30 @@ paths:
           description: Not Acceptable
       x-passRequest: true
       x-permission: apiAdminUsersUserIdSessionsRead
+  /capabilities:
+    get:
+      tags:
+        - Capabilities
+      summary: Get capabilities
+      description: Public. The users app reads it before showing flows that depend on them, eg password reset needs email.
+      operationId: capabilitiesGet
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capabilities'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiCapabilitiesRead
   /health:
     get:
       tags:
@@ -397,6 +527,99 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/AdminSession'
+    AdminSettingsEmailBaseAttributes:
+      type: object
+      properties:
+        provider:
+          $ref: '#/components/schemas/AdminSettingsEmailProviderEnum'
+        host:
+          type: string
+          maxLength: 255
+          description: SMTP host
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        secure:
+          type: boolean
+          description: Implicit TLS (port 465). Otherwise STARTTLS is required.
+        username:
+          type: string
+          maxLength: 255
+        fromAddress:
+          type: string
+          format: email
+          description: Must be on a domain verified at the provider, or nothing arrives
+        fromName:
+          type: string
+          maxLength: 100
+          description: Defaults to the app name
+        replyTo:
+          type: string
+          format: email
+    AdminSettingsEmail:
+      allOf:
+        - $ref: '#/components/schemas/AdminSettingsEmailBaseAttributes'
+        - type: object
+          required:
+            - configured
+            - verified
+          properties:
+            configured:
+              type: boolean
+              description: Settings are saved
+            verified:
+              type: boolean
+              description: A test email went through since the last save, so the app sends real email
+            passwordLast4:
+              type: string
+              description: The only part of the secret ever returned
+            verifiedAt:
+              type: string
+              format: date-time
+            lastSendAt:
+              type: string
+              format: date-time
+            lastError:
+              type: string
+              description: The provider's last failure, cleared by the next successful send
+            updatedAt:
+              type: string
+              format: date-time
+    AdminSettingsEmailProviderEnum:
+      type: string
+      description: A preset the admin app fills host, port and username from, or smtp for any other server.
+      enum:
+        - resend
+        - brevo
+        - sendgrid
+        - mailgun
+        - smtp
+    AdminSettingsEmailPut:
+      allOf:
+        - $ref: '#/components/schemas/AdminSettingsEmailBaseAttributes'
+        - type: object
+          required:
+            - provider
+            - host
+            - port
+            - username
+            - fromAddress
+          properties:
+            password:
+              type: string
+              maxLength: 1024
+              description: The provider's SMTP password or API key. Required on first save, omit later to keep the stored one.
+    AdminSettingsEmailTest:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+        providerResponse:
+          type: string
+          description: The SMTP server's reply, verbatim, for both outcomes
     AdminUsersRolesPut:
       type: object
       required:
@@ -409,6 +632,14 @@ components:
             type: string
             enum:
               - SUPER_ADMIN
+    Capabilities:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: boolean
+          description: Outgoing email is configured and verified, so password reset and magic links work
     GenericDeleteSuccess:
       type: object
       properties:

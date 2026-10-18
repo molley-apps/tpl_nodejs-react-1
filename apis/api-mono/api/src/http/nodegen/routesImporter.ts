@@ -1,7 +1,9 @@
 import config from '@/config';
 import express from 'express';
+import adminEmailRoutes from './routes/adminEmailRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminUserIdRoutes from './routes/adminUserIdRoutes';
+import capabilitiesRoutes from './routes/capabilitiesRoutes';
 import healthRoutes from './routes/healthRoutes';
 import userRoutes from './routes/userRoutes';
 
@@ -14,9 +16,13 @@ export const baseUrl = '/api';
 export default function (app: express.Application, options: RoutesImporter = {basePath: baseUrl}) {
   const basePath = (options.basePath || '').replace(/\/+$/, '');
 
+  app.use(basePath + '/admin', adminEmailRoutes());
+
   app.use(basePath + '/admin', adminRoutes());
 
   app.use(basePath + '/admin', adminUserIdRoutes());
+
+  app.use(basePath + '/capabilities', capabilitiesRoutes());
 
   app.use(basePath + '/health', healthRoutes());
 

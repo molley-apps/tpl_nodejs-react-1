@@ -1,0 +1,10 @@
+summary: Send a test email to the signed-in admin (system admin)
+description: |
+  Sends the test template through the saved settings to the caller's own address. A success marks the settings
+  verified and switches outgoing email on; a failure returns the provider's response verbatim.
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../../../components/schemas/admin/settings/email/test/model.yml

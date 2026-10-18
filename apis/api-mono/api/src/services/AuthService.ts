@@ -3,10 +3,19 @@ import mongoose from 'mongoose';
 import { randomUUID } from 'crypto';
 import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { bearer, magicLink } from 'better-auth/plugins';
 import { mongodbAdapter } from '@better-auth/mongo-adapter';
 import config from '@/config';
 import AuthEmailService from '@/services/AuthEmailService';
+import { EMAIL_NOT_CONFIGURED, EMAIL_NOT_CONFIGURED_MESSAGE } from '@/constants/EMAIL';
+import EmailService from '@/services/EmailService';
+
+/**
+ * Auth routes whose only job is to deliver an email. Refused with 409 EMAIL_NOT_CONFIGURED until the administrator
+ * has set up a provider, so a request never answers "check your inbox" when nothing was sent.
+ */
+const EMAIL_ONLY_PATHS = ['/request-password-reset', '/send-verification-email', '/sign-in/magic-link'];
 
 /**
  * AuthService
@@ -83,6 +92,14 @@ class AuthService {
 
       ...this.schemaOptions(),
       ...this.emailFlowOptions(),
+
+      hooks: {
+        before: createAuthMiddleware(async (ctx) => {
+          if (EMAIL_ONLY_PATHS.includes(ctx.path) && !(await EmailService.isEnabled())) {
+            throw new APIError('CONFLICT', { code: EMAIL_NOT_CONFIGURED, message: EMAIL_NOT_CONFIGURED_MESSAGE });
+          }
+        }),
+      },
 
       plugins: [
         // Clients that cannot use cookies (Expo, CLIs) read the set-auth-token header and send Authorization: Bearer
