@@ -81,7 +81,7 @@ const generate = (configArray) => {
     const config = {
       swaggerFilePath: '../../' + apiName + '-spec/build/release.yml', // correct to your project setup, this assumes this file exists
       targetDir: './src/apis/' + apiName,
-      template: 'https://github.com/molley-io/tpl_generate-it-client-api-consumers.git',
+      template: 'https://github.com/molley-apps/tpl_generate-it-client-api-consumers.git',
       // Inject dynamic content to the tpl here:
       variables: {
         httpServiceImport: '@/services/HttpService'

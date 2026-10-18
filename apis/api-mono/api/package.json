@@ -21,7 +21,7 @@
     "test:unit": "ENVIRONMENT=test npm run jest -- --silent --runInBand",
     "test:unit:single": "npm run jest -- --clearCache && ENVIRONMENT=test npm run jest -- --collectCoverage false --verbose --forceExit --detectOpenHandles",
     "generate:help": "generate-it --help",
-    "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/molley-io/tpl_generate-it-express-server.git",
+    "generate:server": "generate-it ../api-spec/release/api-spec.yml --yes -t https://github.com/molley-apps/tpl_generate-it-express-server.git",
     "migrate-mongo": "migrate-mongo",
     "migration:create": "migrate-mongo create",
     "migration:up": "migrate-mongo up",
