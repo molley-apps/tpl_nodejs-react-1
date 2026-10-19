@@ -21,6 +21,9 @@ locals {
     mongo-password = "MONGO_PW"
     auth-secret    = "AUTH_SECRET"
     email-password = "EMAIL_PASSWORD"
+    # One-time key that makes the first signed-in user the administrator (API: POST /api/setup/admin). Molley reads
+    # it from the admin_setup_key output and shows the claim link on the Launchpad; useless once an admin exists.
+    admin-setup-key = "ADMIN_SETUP_KEY"
   }
 
   # The values to write. The auth secret is always generated here; the rest
@@ -28,11 +31,12 @@ locals {
   # placeholder for it at the first apply (or at a secrets_version bump).
   secret_values = {
     for id, value in {
-      mongo-host     = var.mongo_host
-      mongo-user     = var.mongo_user
-      mongo-password = var.mongo_password
-      auth-secret    = random_password.auth_secret.result
-      email-password = var.email_password
+      mongo-host      = var.mongo_host
+      mongo-user      = var.mongo_user
+      mongo-password  = var.mongo_password
+      auth-secret     = random_password.auth_secret.result
+      email-password  = var.email_password
+      admin-setup-key = random_password.admin_setup_key.result
     } : id => value if value != ""
   }
 

@@ -1,4 +1,5 @@
 import { AuthService } from 'services';
+import AdminSetupClaim from './components/AdminSetupClaim';
 import Greeting from './components/Greeting';
 import AuthGate from './components/auth/AuthGate';
 import config from './config';
@@ -16,6 +17,7 @@ function Shell() {
         </button>
       </header>
       <main className="app-main">
+        <AdminSetupClaim />
         <Greeting />
       </main>
     </>

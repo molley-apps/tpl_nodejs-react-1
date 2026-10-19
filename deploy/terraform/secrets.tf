@@ -20,6 +20,12 @@ resource "random_password" "auth_secret" {
   special = false
 }
 
+# Claimed once through the users app (?setupKey=...) by whoever should administer this environment.
+resource "random_password" "admin_setup_key" {
+  length  = 40
+  special = false
+}
+
 resource "google_secret_manager_secret" "api" {
   for_each = local.secrets
 

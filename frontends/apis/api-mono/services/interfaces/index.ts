@@ -28,6 +28,8 @@ export type { GenericSearchMeta } from './GenericSearchMeta';
 export type { Health } from './Health';
 export type { InternalJobsNamePostPath } from './InternalJobsNamePostPath';
 export type { InternalJobsRun } from './InternalJobsRun';
+export type { SetupAdminPost } from './SetupAdminPost';
+export type { SetupAdminPostPost } from './SetupAdminPostPost';
 export type { User } from './User';
 export type { UserAutocomplete } from './UserAutocomplete';
 export type { UserAutocompletes } from './UserAutocompletes';

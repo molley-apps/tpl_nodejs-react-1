@@ -29,6 +29,8 @@ export { GenericSearchMeta } from './GenericSearchMeta';
 export { Health } from './Health';
 export { InternalJobsNamePostPath } from './InternalJobsNamePostPath';
 export { InternalJobsRun } from './InternalJobsRun';
+export { SetupAdminPost } from './SetupAdminPost';
+export { SetupAdminPostPost } from './SetupAdminPostPost';
 export { User } from './User';
 export { UserAutocomplete } from './UserAutocomplete';
 export { UserAutocompletes } from './UserAutocompletes';

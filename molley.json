@@ -43,7 +43,7 @@
     "versionFile": "deploy/terraform/.terraform-version",
     "inputs": ["project_id", "region", "env", "app_name", "app_display_name", "app_url", "api_image", "noindex", "mongo_database", "secrets_version"],
     "secretInputs": ["mongo_host", "mongo_user", "mongo_password", "email_password"],
-    "outputs": ["service_url", "service_name", "assets_bucket", "image_repository", "service_account", "secrets"]
+    "outputs": ["service_url", "service_name", "assets_bucket", "image_repository", "service_account", "secrets", "admin_setup_key"]
   },
   "env": {
     "plain": [
@@ -64,9 +64,9 @@
       "GCP_REGION",
       "SCHEDULER_INVOKER_EMAIL"
     ],
-    "secrets": ["MONGO_HOST", "MONGO_USER", "MONGO_PW", "AUTH_SECRET", "EMAIL_PASSWORD"]
+    "secrets": ["MONGO_HOST", "MONGO_USER", "MONGO_PW", "AUTH_SECRET", "EMAIL_PASSWORD", "ADMIN_SETUP_KEY"]
   },
-  "auth": { "provider": "better-auth", "basePath": "/api/auth", "systemRoles": ["SUPER_ADMIN"], "firstAdmin": "set roles: [\"SUPER_ADMIN\"] on the user document in MongoDB" },
+  "auth": { "provider": "better-auth", "basePath": "/api/auth", "systemRoles": ["SUPER_ADMIN"], "firstAdmin": "sign up on the users app, then open <appUrl>/users/?setupKey=<ADMIN_SETUP_KEY> once (Terraform output admin_setup_key, shown on the Launchpad); refused once an administrator exists" },
   "bootstrap": {
     "appName": ["apis/api-mono/api/.env.example#APP_NAME", "frontends/users/src/config.ts#app.name", "frontends/admin/src/config.ts#app.name", "frontends/users/index.html#title"],
     "landingPage": ["frontends/users/src/components/Greeting.tsx", "frontends/users/src/App.tsx"],

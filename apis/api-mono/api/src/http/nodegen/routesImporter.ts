@@ -7,6 +7,7 @@ import adminUserIdRoutes from './routes/adminUserIdRoutes';
 import capabilitiesRoutes from './routes/capabilitiesRoutes';
 import healthRoutes from './routes/healthRoutes';
 import internalNameRoutes from './routes/internalNameRoutes';
+import setupRoutes from './routes/setupRoutes';
 import userRoutes from './routes/userRoutes';
 
 export interface RoutesImporter {
@@ -31,6 +32,8 @@ export default function (app: express.Application, options: RoutesImporter = {ba
   app.use(basePath + '/health', healthRoutes());
 
   app.use(basePath + '/internal', internalNameRoutes());
+
+  app.use(basePath + '/setup', setupRoutes());
 
   app.use(basePath + '/user', userRoutes());
 

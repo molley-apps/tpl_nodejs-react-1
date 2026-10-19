@@ -1,0 +1,9 @@
+type: object
+required:
+  - key
+properties:
+  key:
+    type: string
+    minLength: 16
+    maxLength: 200
+    description: The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley

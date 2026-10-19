@@ -411,6 +411,40 @@ paths:
           description: Not Acceptable
       x-passRequest: true
       x-permission: apiInternalJobsNameCreate
+  /setup/admin:
+    post:
+      tags:
+        - Setup
+      summary: Create a admin, from setup
+      description: |
+        Grants SUPER_ADMIN to the signed-in user when the key matches the environment's setup key and no administrator
+        exists yet. Refused with 409 once there is one and 403 for a wrong key, so the key is useless after the claim.
+      operationId: setupAdminPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetupAdminPost'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '406':
+          description: Not Acceptable
+        '422':
+          description: Not Acceptable
+      x-passRequest: true
+      x-permission: apiSetupAdminCreate
   /user/current:
     get:
       tags:
@@ -893,6 +927,16 @@ components:
           $ref: '#/components/schemas/AdminScheduleRunStatusEnum'
         durationMs:
           type: integer
+    SetupAdminPost:
+      type: object
+      required:
+        - key
+      properties:
+        key:
+          type: string
+          minLength: 16
+          maxLength: 200
+          description: The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley
     UserAutocomplete:
       type: object
       required:

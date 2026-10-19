@@ -21,6 +21,12 @@ output "service_account" {
   value = google_service_account.api.email
 }
 
+output "admin_setup_key" {
+  description = "One-time key: open <app_url>/users/?setupKey=<key> signed in to become this environment's administrator"
+  value       = random_password.admin_setup_key.result
+  sensitive   = true
+}
+
 output "scheduler_invoker" {
   description = "Service account Cloud Scheduler calls the API's job endpoint as"
   value       = google_service_account.scheduler_invoker.email

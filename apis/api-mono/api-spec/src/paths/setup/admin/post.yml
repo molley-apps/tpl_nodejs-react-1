@@ -1,0 +1,16 @@
+summary: Become this environment's first administrator
+description: |
+  Grants SUPER_ADMIN to the signed-in user when the key matches the environment's setup key and no administrator
+  exists yet. Refused with 409 once there is one and 403 for a wrong key, so the key is useless after the claim.
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: ../../../components/schemas/setup/admin/post.yml
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../../components/schemas/user/model.yml

@@ -1813,6 +1813,164 @@
       "endpointName": "internal",
       "groupName": "internal"
     },
+    "/setup/admin": {
+      "post": {
+        "tags": [
+          "Setup"
+        ],
+        "summary": "Create a admin, from setup",
+        "description": "Grants SUPER_ADMIN to the signed-in user when the key matches the environment's setup key and no administrator\nexists yet. Refused with 409 once there is one and 403 for a wrong key, so the key is useless after the claim.\n",
+        "operationId": "setupAdminPost",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "key"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 200,
+                    "description": "The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "firstName",
+                    "lastName",
+                    "_id",
+                    "email",
+                    "emailVerified",
+                    "roles",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "User's first name"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "User's last name"
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "Display name shown in the UI, defaults to \"firstName lastName\" at sign up"
+                    },
+                    "image": {
+                      "type": "string",
+                      "maxLength": 2048,
+                      "description": "Avatar image URL"
+                    },
+                    "_id": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Managed by the auth layer, change it via the auth change-email flow, not this API"
+                    },
+                    "emailVerified": {
+                      "type": "boolean"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          },
+          "422": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiSetupAdminCreate",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "setupAdminPostPost",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 16,
+                  "maxLength": 200,
+                  "description": "The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley"
+                }
+              }
+            }
+          }
+        ],
+        "x-request-definitions": {
+          "body": {
+            "name": "SetupAdminPost",
+            "params": [
+              {
+                "name": "SetupAdminPostPost",
+                "path": "components.schemas.SetupAdminPost"
+              }
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface SetupAdminPostPost {\n    /**\n     * The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley\n     */\n    key: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "User"
+        }
+      },
+      "endpointName": "setup",
+      "groupName": "setup"
+    },
     "/user/current": {
       "get": {
         "tags": [
@@ -2965,6 +3123,20 @@
           }
         }
       },
+      "SetupAdminPost": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 200,
+            "description": "The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley"
+          }
+        }
+      },
       "UserAutocomplete": {
         "type": "object",
         "required": [
@@ -3475,6 +3647,18 @@
       }
     },
     {
+      "name": "SetupAdminPost",
+      "content": {
+        "outputString": "\nexport interface SetupAdminPost {\n    /**\n     * The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley\n     */\n    key: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "SetupAdminPostPost",
+      "content": {
+        "outputString": "\nexport interface SetupAdminPostPost {\n    /**\n     * The environment's one-time setup key (ADMIN_SETUP_KEY), handed to the owner by Molley\n     */\n    key: string;\n}\n\n"
+      }
+    },
+    {
       "name": "User",
       "content": {
         "outputString": "\nexport interface User {\n    _id:       string;\n    createdAt: Date;\n    /**\n     * Managed by the auth layer, change it via the auth change-email flow, not this API\n     */\n    email:         string;\n    emailVerified: boolean;\n    /**\n     * User's first name\n     */\n    firstName: string;\n    /**\n     * Avatar image URL\n     */\n    image?: string;\n    /**\n     * User's last name\n     */\n    lastName: string;\n    /**\n     * Display name shown in the UI, defaults to \"firstName lastName\" at sign up\n     */\n    name?:     string;\n    roles:     string[];\n    updatedAt: Date;\n}\n\n"
@@ -3542,6 +3726,7 @@
     "capabilities": "capabilities",
     "health": "health",
     "internal": "internal",
+    "setup": "setup",
     "user": "user"
   },
   "endpoints": [
@@ -3549,6 +3734,7 @@
     "capabilities",
     "health",
     "internal",
+    "setup",
     "user"
   ]
 }

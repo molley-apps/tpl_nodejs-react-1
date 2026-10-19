@@ -39,6 +39,10 @@ class UserRepository extends BaseRepository<UserClass> {
     return this.model.find({ roles: role });
   }
 
+  async existsWithRole(role: string): Promise<boolean> {
+    return (await this.model.exists({ roles: role })) !== null;
+  }
+
   /** A page of users, newest first, plus the total matching the filters. */
   async search(input: UserSearch): Promise<{ data: UserClass[]; total: number }> {
     const filter: Record<string, unknown> = {};
