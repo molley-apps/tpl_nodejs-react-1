@@ -134,8 +134,9 @@ export default {
     // API paths that do not require a session. Every other /api path returns 401 without one.
     // Frontend paths are not listed here: the apps are served without a session (their sign in page lives
     // inside the SPA) and FrontendAssetsService gates the role-restricted ones.
-    publicPaths: ['/api/health', '/api/capabilities'],
-    // API path prefixes that carry their own authentication instead of a session (Cloud Scheduler's OIDC token).
+    publicPaths: ['/api/health', '/api/meta'],
+    // API path prefixes that carry their own authentication instead of a session: /api/internal/ is guarded by
+    // InternalAuthService (Cloud Scheduler's Google OIDC token) for the whole prefix.
     publicPathPrefixes: ['/api/internal/'],
   },
 

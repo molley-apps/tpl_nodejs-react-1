@@ -6,7 +6,7 @@ import { appHomeUrl } from './authUrls';
 import { authErrorMessage } from './authErrorMessage';
 
 interface SignInPageProps {
-  /** Outgoing email is configured (GET /api/capabilities), so the reset and magic link options can be offered */
+  /** Outgoing email is configured (GET /api/meta, features.email), so the reset and magic link options can be offered */
   emailEnabled: boolean;
   onSignUp: () => void;
   onForgotPassword: () => void;

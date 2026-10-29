@@ -3,6 +3,8 @@ import { Joi } from 'celebrate';
 export default {
   adminSchedulesGet: {},
 
+  adminSecretsGet: {},
+
   adminUsersGet: {
     query: Joi.object({
       offset: Joi.number().integer().min(0),

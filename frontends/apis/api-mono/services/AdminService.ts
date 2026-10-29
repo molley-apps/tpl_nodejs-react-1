@@ -6,6 +6,11 @@ import { AdminSchedules } from './interfaces/AdminSchedules';
 import { AdminSchedulesNamePutPath } from './interfaces/AdminSchedulesNamePutPath';
 import { AdminSchedulesNamePutPut } from './interfaces/AdminSchedulesNamePutPut';
 import { AdminSchedulesNameRunPostPath } from './interfaces/AdminSchedulesNameRunPostPath';
+import { AdminSecret } from './interfaces/AdminSecret';
+import { AdminSecrets } from './interfaces/AdminSecrets';
+import { AdminSecretsSecretKeyDeletePath } from './interfaces/AdminSecretsSecretKeyDeletePath';
+import { AdminSecretsSecretKeyPutPath } from './interfaces/AdminSecretsSecretKeyPutPath';
+import { AdminSecretsSecretKeyPutPut } from './interfaces/AdminSecretsSecretKeyPutPut';
 import { AdminSessions } from './interfaces/AdminSessions';
 import { AdminSettingsEmail } from './interfaces/AdminSettingsEmail';
 import { AdminSettingsEmailPutPut } from './interfaces/AdminSettingsEmailPutPut';
@@ -63,6 +68,54 @@ disabling deletes it. Nothing runs while a job is disabled.
     return HttpService.sendRequest({
       method: 'POST',
       path: AdminService.basePath + 'admin/schedules/:name/run',
+      params: pathParams,
+    });
+  }
+
+  /**
+   *  Operation ID: adminSecretsGet
+   *  Summary: Get secrets, from admin
+   *  Description: Every secret the administrator has saved (API keys and tokens for outside services the app integrates with),
+without their values: only the last four characters are ever returned.
+
+   */
+  public static adminSecretsGet(): Promise<AdminSecrets> {
+    return HttpService.sendRequest({
+      method: 'GET',
+      path: AdminService.basePath + 'admin/secrets',
+    });
+  }
+
+  /**
+   *  Operation ID: adminSecretsSecretKeyDelete
+   *  Summary: Delete a secrets based on {secretKey}, from admin
+   *  Description: Deletes the secret. Any feature that needs it reports it as not configured from the next request.
+   */
+  public static adminSecretsSecretKeyDelete(
+    pathParams: AdminSecretsSecretKeyDeletePath
+  ): Promise<GenericDeleteSuccess> {
+    return HttpService.sendRequest({
+      method: 'DELETE',
+      path: AdminService.basePath + 'admin/secrets/:secretKey',
+      params: pathParams,
+    });
+  }
+
+  /**
+   *  Operation ID: adminSecretsSecretKeyPut
+   *  Summary: Update a secrets based on {secretKey}, from admin
+   *  Description: Stores the value encrypted under the given name. The code reads it with AppSecretsService.get(name) on each
+use, so a new value applies at once, without a redeploy. Omit the value to change only the description.
+
+   */
+  public static adminSecretsSecretKeyPut(
+    body: AdminSecretsSecretKeyPutPut,
+    pathParams: AdminSecretsSecretKeyPutPath
+  ): Promise<AdminSecret> {
+    return HttpService.sendRequest({
+      method: 'PUT',
+      path: AdminService.basePath + 'admin/secrets/:secretKey',
+      body,
       params: pathParams,
     });
   }

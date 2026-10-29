@@ -46,6 +46,34 @@ project/
 - All path files are named by their HTTP verb only (e.g. `get.yml`, `post.yml`)
 - Path params are indicated in the folder name with curly braces like `{id}`
 
+### `/meta` is the one public read
+`GET /meta` needs no session: the users app reads it before anyone signs in, for the app's name and the feature
+flags that decide what to show (`features.email` hides password reset while outgoing email is off). Put a new
+pre-sign-in flag or label there rather than adding another public route. Everything in it is visible to the
+whole internet, so it carries names and booleans only: never a configuration value, a limit, a key or anything
+derived from a secret. Signed-in features do not need a flag; they get the API's `409 …_NOT_CONFIGURED` answer
+and show it.
+
+### `/internal` is for Google Cloud callers only
+Paths under `/internal` skip the session check and are guarded for the whole prefix by `InternalAuthService`,
+which accepts nothing but a Google OIDC token for this environment's invoker service account (what Cloud
+Scheduler sends). Put a route there only when Google Cloud itself is the caller; never for a user, a browser, a
+cron library or another service of yours. Do not add other session-free prefixes: a route that needs no
+session is either `/health`, `/meta`, or does not belong in this API.
+
+### Admin-only endpoints live under `/admin`
+Access is decided by the path. The spec stamps every operation with an `x-permission` code derived from its
+path, and `PermissionService` grants anything whose code starts with `apiAdmin` to the `SUPER_ADMIN` system
+role only; every other route is open to any signed-in user. There is no other switch, so:
+- An endpoint that only administrators may call **must** be under `api_spec/src/paths/admin/…`
+  (`admin/users/…`, `admin/settings/<area>/…`, `admin/schedules/…`). Anywhere else and every user can call it.
+- Never put a user-facing endpoint under `/admin`: ordinary users would get `403` from it.
+- The split carries through: admin screens go in `frontends/admin` and call the generated `AdminService`;
+  user screens go in `frontends/users`. An admin-only feature has no users-app UI at all.
+- Settings an administrator edits (an integration's key, limits, provider choice) are `admin/settings/<area>`
+  with `get`, `put`, `delete` and, where the service can be probed, `test/post`. See
+  `.claude/rules/integrations-and-secrets.md`.
+
 ### Components Conventions
 - In `components/parameters/`, each file name clearly indicates its purpose — path or query — e.g. `pathCompanyId.yml`, `queryLimit.yml`
 - In `components/schemas/`, the **only** permitted file names are: `put`, `post`, `patch`, `model`, `models`, `baseAttributes`, and `enum`

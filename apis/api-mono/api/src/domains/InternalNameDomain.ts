@@ -7,7 +7,7 @@ import ScheduleService from '@/services/ScheduleService';
 
 class InternalNameDomain implements InternalNameDomainInterface {
   public async internalJobsNamePost(params: InternalJobsNamePostPath, req: NodegenRequest): Promise<InternalJobsRun> {
-    return ScheduleService.runFromScheduler(params.name, req.headers.authorization);
+    return ScheduleService.runFromScheduler(params.name);
   }
 }
 

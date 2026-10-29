@@ -2,11 +2,12 @@ import config from '@/config';
 import express from 'express';
 import adminRoutes from './routes/adminRoutes';
 import adminNameRoutes from './routes/adminNameRoutes';
+import adminSecretKeyRoutes from './routes/adminSecretKeyRoutes';
 import adminEmailRoutes from './routes/adminEmailRoutes';
 import adminUserIdRoutes from './routes/adminUserIdRoutes';
-import capabilitiesRoutes from './routes/capabilitiesRoutes';
 import healthRoutes from './routes/healthRoutes';
 import internalNameRoutes from './routes/internalNameRoutes';
+import metaRoutes from './routes/metaRoutes';
 import setupRoutes from './routes/setupRoutes';
 import userRoutes from './routes/userRoutes';
 
@@ -23,15 +24,17 @@ export default function (app: express.Application, options: RoutesImporter = {ba
 
   app.use(basePath + '/admin', adminNameRoutes());
 
+  app.use(basePath + '/admin', adminSecretKeyRoutes());
+
   app.use(basePath + '/admin', adminEmailRoutes());
 
   app.use(basePath + '/admin', adminUserIdRoutes());
 
-  app.use(basePath + '/capabilities', capabilitiesRoutes());
-
   app.use(basePath + '/health', healthRoutes());
 
   app.use(basePath + '/internal', internalNameRoutes());
+
+  app.use(basePath + '/meta', metaRoutes());
 
   app.use(basePath + '/setup', setupRoutes());
 

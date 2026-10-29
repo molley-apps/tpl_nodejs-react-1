@@ -6,6 +6,14 @@ configured by the app's own administrator inside the admin app instead. `molley.
 Treat each as settled: do not raise it as a missing dependency, a conflict or an open question, and do not propose
 adding infrastructure for it.
 
+## `app-secrets`: keys for outside services
+
+The administrator saves the API keys and tokens the app's features need (an AI provider, payments, maps, a CRM) in
+the admin app under **App secrets**, by name. The code reads each one with `AppSecretsService.require('NAME')` or
+`.get('NAME')` at the moment it is used; values are stored encrypted and never leave the API. Nothing is ever an
+environment variable: a deployed environment only has the variables `molley.json` lists, and nobody can add to
+them per app. The full rule, including what to do while a key is missing, is `.claude/rules/integrations-and-secrets.md`.
+
 ## `email-settings`: outgoing email
 
 The administrator connects their own provider (Resend, Brevo, SendGrid, Mailgun or any SMTP server) in the admin app
@@ -26,8 +34,8 @@ Rules for any code that sends email:
   throwing when the message could not go out. Handle that result: the request that wanted to notify someone should
   still succeed, and the UI should say the notification was not sent when that matters. Do not treat it as a server
   error.
-- The users app can read `GET /api/capabilities` (`emailEnabled` in `useAppStore`) to hide features that only make
-  sense with email, the way the sign-in screen hides password reset.
+- The users app can read `GET /api/meta` (`features.email`, kept as `emailEnabled` in `useAppStore`) to hide features
+  that only make sense with email, the way the sign-in screen hides password reset.
 - Local development: with `NODE_ENV=local` and no provider saved, `send` falls back to the `EMAIL_*` env settings
   (`EMAIL_MODE=FILE` writes each message to `emails/logs`, or point `EMAIL_HOST` at Mailpit). That fallback never
   applies to a deployed environment.

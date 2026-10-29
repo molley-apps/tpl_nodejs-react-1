@@ -9,7 +9,6 @@ import { JobDefinition } from '@/jobs/defineJob';
 import { jobByName, jobs } from '@/jobs';
 import CloudSchedulerService from '@/services/CloudSchedulerService';
 import { nextCronRun } from '@/utils/nextCronRun';
-import { verifySchedulerOidc } from '@/utils/verifySchedulerOidc';
 
 /** Identifies this process in a run claim, so a stuck claim can be traced to an instance. */
 const INSTANCE_ID = `${process.env.K_REVISION || os.hostname()}:${randomUUID().slice(0, 8)}`;
@@ -91,12 +90,11 @@ class ScheduleService {
     return this.toApi(await this.requireRecord(name));
   }
 
-  /** The Cloud Scheduler entry point: verify the caller, then run once. */
-  async runFromScheduler(name: string, authorization: string | undefined): Promise<InternalJobsRun> {
-    await verifySchedulerOidc(authorization, {
-      audience: config.appDetails.domain,
-      invokerEmail: config.scheduler.invokerEmail,
-    });
+  /**
+   * The Cloud Scheduler entry point: runs the job once. The caller was already verified by InternalAuthService,
+   * which guards the whole /api/internal/ prefix before any route runs.
+   */
+  async runFromScheduler(name: string): Promise<InternalJobsRun> {
     const run = await this.execute(name, 'scheduler', false);
     return run
       ? { skipped: false, status: run.status as InternalJobsRun['status'], durationMs: run.durationMs }

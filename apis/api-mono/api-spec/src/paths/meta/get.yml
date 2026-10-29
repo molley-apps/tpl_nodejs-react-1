@@ -1,0 +1,11 @@
+summary: Public app meta
+description: |
+  What the users app needs before anyone is signed in: the app's name and the feature flags that decide which
+  options to show (eg password reset only when outgoing email works). Readable by anyone, so it carries flags
+  and labels only, never configuration values or secrets.
+responses:
+  '200':
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/meta/model.yml

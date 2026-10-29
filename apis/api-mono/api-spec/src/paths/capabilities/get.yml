@@ -1,8 +1,0 @@
-summary: Which optional platform features this deployment has switched on
-description: Public. The users app reads it before showing flows that depend on them, eg password reset needs email.
-responses:
-  '200':
-    content:
-      application/json:
-        schema:
-          $ref: ../../components/schemas/capabilities/model.yml

@@ -4,7 +4,7 @@ jest.mock('@/services/EmailSettingsService', () => ({ __esModule: true, default:
 jest.mock('@/services/EmailService', () => ({ __esModule: true, default: mockEmail }));
 
 import AdminEmailDomain from '@/domains/AdminEmailDomain';
-import CapabilitiesDomain from '@/domains/CapabilitiesDomain';
+import MetaDomain from '@/domains/MetaDomain';
 import { Provider } from '@/http/nodegen/interfaces/AdminSettingsEmailPutPut';
 import NodegenRequest from '@/http/interfaces/NodegenRequest';
 
@@ -31,9 +31,9 @@ describe('AdminEmailDomain', () => {
   });
 });
 
-describe('CapabilitiesDomain', () => {
-  it('exposes whether email is on', async () => {
+describe('MetaDomain', () => {
+  it('exposes the app name and whether email is on, and nothing else', async () => {
     mockEmail.isEnabled.mockResolvedValue(true);
-    expect(await CapabilitiesDomain.capabilitiesGet(req)).toEqual({ email: true });
+    expect(await MetaDomain.metaGet(req)).toEqual({ appName: expect.any(String), features: { email: true } });
   });
 });

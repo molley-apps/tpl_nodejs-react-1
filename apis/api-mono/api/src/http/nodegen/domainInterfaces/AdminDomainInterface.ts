@@ -1,5 +1,6 @@
 import {
   AdminSchedules,
+  AdminSecrets,
   AdminUsersGetQuery,
   Users,
 } from '@/http/nodegen/interfaces';
@@ -14,6 +15,15 @@ export interface AdminDomainInterface {
    * Permission string: apiAdminSchedulesRead
    **/
   adminSchedulesGet(req: any): Promise<AdminSchedules>;
+
+  /**
+   * Operation ID: adminSecretsGet
+   * Summary: Get secrets, from admin
+   * Description: Every secret the administrator has saved (API keys and tokens for outside services the app integrates with),
+without their values: only the last four characters are ever returned.
+   * Permission string: apiAdminSecretsRead
+  **/
+  adminSecretsGet(req: any): Promise<AdminSecrets>;
 
   /**
    * Operation ID: adminUsersGet

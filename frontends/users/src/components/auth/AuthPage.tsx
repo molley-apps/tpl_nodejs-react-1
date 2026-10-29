@@ -16,12 +16,12 @@ const resetToken = new URLSearchParams(window.location.search).get('token');
  */
 export default function AuthPage() {
   const [screen, setScreen] = useState<Screen>(resetToken ? 'reset-password' : 'sign-in');
-  const { emailEnabled, fetchCapabilities } = useAppStore();
+  const { emailEnabled, fetchMeta } = useAppStore();
 
   // Password reset and magic links need outgoing email, which the app's administrator switches on
   useEffect(() => {
-    if (emailEnabled === null) fetchCapabilities();
-  }, [emailEnabled, fetchCapabilities]);
+    if (emailEnabled === null) fetchMeta();
+  }, [emailEnabled, fetchMeta]);
 
   const backToSignIn = () => {
     if (resetToken) {

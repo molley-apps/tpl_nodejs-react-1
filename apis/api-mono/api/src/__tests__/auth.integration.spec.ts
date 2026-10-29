@@ -73,10 +73,19 @@ describe('Authentication (integration)', () => {
     expect(res.status).toBe(401);
   });
 
-  it('serves the public capabilities route without a session', async () => {
-    const res = await request(app).get('/api/capabilities');
+  it('refuses the scheduler entry point without a valid Google OIDC token, session or not', async () => {
+    // /api/internal/ skips the session check; the OIDC verification is the only guard, so pin it here.
+    const anonymous = await request(app).post('/api/internal/jobs/purge-expired-sessions');
+    expect(anonymous.status).toBe(401);
+
+    const forged = await request(app).post('/api/internal/jobs/purge-expired-sessions').set('Authorization', 'Bearer not-a-google-token');
+    expect(forged.status).toBe(401);
+  });
+
+  it('serves the public meta route without a session', async () => {
+    const res = await request(app).get('/api/meta');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ email: true });
+    expect(res.body).toEqual({ appName: expect.any(String), features: { email: true } });
   });
 
   describe('cookie session (browser clients)', () => {
@@ -256,6 +265,57 @@ describe('Authentication (integration)', () => {
       it('will not let the admin delete their own account', async () => {
         const res = await request(app).delete(`/api/admin/users/${adaId}`).set('Cookie', cookies);
         expect(res.status).toBe(403);
+      });
+
+      describe('app secrets', () => {
+        it('stores a secret encrypted, lists it without the value, edits the description alone and removes it', async () => {
+          const created = await request(app)
+            .put('/api/admin/secrets/ANTHROPIC_API_KEY')
+            .set('Cookie', cookies)
+            .send({ value: 'sk-ant-api03-secret-value', description: 'Summariser' });
+          expect(created.status).toBe(200);
+          expect(created.body).toMatchObject({ key: 'ANTHROPIC_API_KEY', description: 'Summariser', valueLast4: 'alue' });
+          expect(JSON.stringify(created.body)).not.toContain('sk-ant');
+
+          // At rest: encrypted, not the plain value.
+          const doc = await mongoose.connection.collection('appSecrets').findOne({ _id: 'ANTHROPIC_API_KEY' as never });
+          expect(doc?.valueEncrypted).toBeDefined();
+          expect(JSON.stringify(doc)).not.toContain('sk-ant');
+
+          const listed = await request(app).get('/api/admin/secrets').set('Cookie', cookies);
+          expect(listed.status).toBe(200);
+          expect(listed.body).toHaveLength(1);
+          expect(listed.body[0]).toMatchObject({ key: 'ANTHROPIC_API_KEY', valueLast4: 'alue' });
+          expect(listed.body[0].value).toBeUndefined();
+
+          const edited = await request(app)
+            .put('/api/admin/secrets/ANTHROPIC_API_KEY')
+            .set('Cookie', cookies)
+            .send({ description: 'Used by the summariser' });
+          expect(edited.status).toBe(200);
+          expect(edited.body).toMatchObject({ description: 'Used by the summariser', valueLast4: 'alue' });
+
+          const removed = await request(app).delete('/api/admin/secrets/ANTHROPIC_API_KEY').set('Cookie', cookies);
+          expect(removed.status).toBe(200);
+          const after = await request(app).get('/api/admin/secrets').set('Cookie', cookies);
+          expect(after.body).toEqual([]);
+        });
+
+        it('rejects a name the spec pattern does not allow and a first save without a value', async () => {
+          const badName = await request(app).put('/api/admin/secrets/anthropic-key').set('Cookie', cookies).send({ value: 'x' });
+          expect(badName.status).toBe(422);
+
+          const noValue = await request(app).put('/api/admin/secrets/STRIPE_KEY').set('Cookie', cookies).send({ description: 'x' });
+          expect(noValue.status).toBe(400);
+        });
+
+        it('is refused to a signed-in user without SUPER_ADMIN like every admin route', async () => {
+          const carol = { ...bob, name: 'Carol Code', firstName: 'Carol', lastName: 'Code', email: 'carol@example.com' };
+          const carolCookies = cookiesOf(await request(app).post('/api/auth/sign-up/email').send(carol));
+
+          const res = await request(app).get('/api/admin/secrets').set('Cookie', carolCookies);
+          expect(res.status).toBe(403);
+        });
       });
 
       it('deletes another user with their credentials', async () => {

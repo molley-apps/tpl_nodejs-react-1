@@ -114,6 +114,15 @@ or a second instance skip. Locally there is no Scheduler: the API runs due jobs 
 request and must finish well inside the 300 s request timeout. The full rule is in
 `.claude/rules/platform-capabilities.md`.
 
+## App secrets
+
+Keys for outside services (an AI provider, payments, maps) are never environment variables: a deployed environment
+only has the variables `molley.json` lists, and nobody can add to them per app. The administrator saves each key by
+name in the admin app under **App secrets** (`GET/PUT/DELETE /api/admin/secrets…`), where it is stored encrypted with
+a key derived from `AUTH_SECRET`; the code reads it at the moment of use with `AppSecretsService.require('NAME')`,
+so a new value applies without a redeploy and a missing one answers `409 SECRET_NOT_CONFIGURED` naming the key.
+The full rule is in `.claude/rules/integrations-and-secrets.md`.
+
 ## Deploying
 
 `deploy/` holds Terraform for a `dev` and a `prod` environment on GCP: one public Cloud Run service (the API, which

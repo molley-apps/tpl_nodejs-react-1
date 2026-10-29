@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "template": "tpl_nodejs-react-1",
   "description": "One Cloud Run service: an OpenAPI-generated Express API with Better Auth that also serves the React frontends from a private GCS bucket.",
-  "capabilities": ["email-settings", "scheduled-jobs"],
+  "capabilities": ["email-settings", "scheduled-jobs", "app-secrets"],
   "services": [
     {
       "name": "api",

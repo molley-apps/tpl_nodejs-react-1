@@ -10,15 +10,13 @@ const mockRepo = {
 };
 const mockScheduler = { enabled: true, upsert: jest.fn(), remove: jest.fn() };
 const mockJob = { name: 'purge-expired-sessions', description: 'Deletes old sessions', defaultSchedule: { cron: '15 3 * * *', timezone: 'UTC' }, run: jest.fn() };
-const mockVerify = jest.fn();
 
 jest.mock('@/database/ScheduledJobRepository', () => ({ __esModule: true, default: mockRepo }));
 jest.mock('@/services/CloudSchedulerService', () => ({ __esModule: true, default: mockScheduler }));
 jest.mock('@/jobs', () => ({ jobs: [mockJob], jobByName: (name: string) => (name === mockJob.name ? mockJob : undefined) }));
-jest.mock('@/utils/verifySchedulerOidc', () => ({ verifySchedulerOidc: mockVerify }));
 
 import ScheduleService from '@/services/ScheduleService';
-import { BadRequestException, NotFoundException, UnauthorizedException } from '@/http/nodegen/errors';
+import { BadRequestException, NotFoundException } from '@/http/nodegen/errors';
 
 const record = (overrides: Record<string, unknown> = {}) => ({
   _id: 'purge-expired-sessions',
@@ -48,7 +46,6 @@ beforeEach(() => {
   mockScheduler.upsert.mockResolvedValue('projects/p/locations/r/jobs/dev-shop-purge-expired-sessions');
   mockScheduler.remove.mockResolvedValue(undefined);
   mockJob.run.mockResolvedValue({ removed: 3 });
-  mockVerify.mockResolvedValue(undefined);
 });
 
 describe('ScheduleService.reconcile', () => {
@@ -116,12 +113,12 @@ describe('ScheduleService.update', () => {
 });
 
 describe('ScheduleService.runFromScheduler', () => {
-  it('verifies the caller, claims the record, runs the handler and records a success with the next run', async () => {
+  // The caller is verified by InternalAuthService before any route; this method only runs the job.
+  it('claims the record, runs the handler and records a success with the next run', async () => {
     mockRepo.claim.mockResolvedValue(record({ enabled: true, running: { startedAt: new Date(), by: 'me' } }));
 
-    const outcome = await ScheduleService.runFromScheduler('purge-expired-sessions', 'Bearer tok');
+    const outcome = await ScheduleService.runFromScheduler('purge-expired-sessions');
 
-    expect(mockVerify).toHaveBeenCalledWith('Bearer tok', expect.objectContaining({ audience: expect.any(String) }));
     expect(mockRepo.claim).toHaveBeenCalledWith(expect.objectContaining({ name: 'purge-expired-sessions', allowDisabled: false, staleBefore: expect.any(Date) }));
     expect(mockJob.run).toHaveBeenCalledWith(expect.objectContaining({ signal: expect.any(AbortSignal), startedAt: expect.any(Date) }));
     expect(mockRepo.finishRun).toHaveBeenCalledWith({
@@ -134,13 +131,13 @@ describe('ScheduleService.runFromScheduler', () => {
 
   it('answers skipped when the claim is not won, and runs nothing', async () => {
     mockRepo.claim.mockResolvedValue(null);
-    expect(await ScheduleService.runFromScheduler('purge-expired-sessions', 'Bearer tok')).toEqual({ skipped: true });
+    expect(await ScheduleService.runFromScheduler('purge-expired-sessions')).toEqual({ skipped: true });
     expect(mockJob.run).not.toHaveBeenCalled();
     expect(mockRepo.finishRun).not.toHaveBeenCalled();
   });
 
   it('skips an unknown job without touching the database', async () => {
-    expect(await ScheduleService.runFromScheduler('ghost', 'Bearer tok')).toEqual({ skipped: true });
+    expect(await ScheduleService.runFromScheduler('ghost')).toEqual({ skipped: true });
     expect(mockRepo.claim).not.toHaveBeenCalled();
   });
 
@@ -148,16 +145,10 @@ describe('ScheduleService.runFromScheduler', () => {
     mockRepo.claim.mockResolvedValue(record({ enabled: true }));
     mockJob.run.mockRejectedValue(new Error('mongo down'));
 
-    const outcome = await ScheduleService.runFromScheduler('purge-expired-sessions', 'Bearer tok');
+    const outcome = await ScheduleService.runFromScheduler('purge-expired-sessions');
 
     expect(outcome).toMatchObject({ skipped: false, status: 'failed' });
     expect(mockRepo.finishRun).toHaveBeenCalledWith(expect.objectContaining({ lastRun: expect.objectContaining({ status: 'failed', error: 'mongo down' }) }));
-  });
-
-  it('refuses before claiming when the token is bad', async () => {
-    mockVerify.mockRejectedValue(new UnauthorizedException('nope'));
-    await expect(ScheduleService.runFromScheduler('purge-expired-sessions', undefined)).rejects.toBeInstanceOf(UnauthorizedException);
-    expect(mockRepo.claim).not.toHaveBeenCalled();
   });
 });
 

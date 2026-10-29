@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import HealthService from 'apis/api-mono/services/HealthService';
-import CapabilitiesService from 'apis/api-mono/services/CapabilitiesService';
+import MetaService from 'apis/api-mono/services/MetaService';
 
 interface AppState {
   greeting: string;
@@ -11,9 +11,9 @@ interface AppState {
   healthError: string | null;
   checkHealth: () => Promise<void>;
 
-  /** GET /api/capabilities: outgoing email is set up, so password reset and magic links work. null until loaded. */
+  /** GET /api/meta features.email: outgoing email is set up, so password reset and magic links work. null until loaded. */
   emailEnabled: boolean | null;
-  fetchCapabilities: () => Promise<void>;
+  fetchMeta: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -35,13 +35,13 @@ export const useAppStore = create<AppState>((set) => ({
   },
 
   emailEnabled: null,
-  fetchCapabilities: async () => {
+  fetchMeta: async () => {
     try {
-      const capabilities = await CapabilitiesService.capabilitiesGet();
-      set({ emailEnabled: !!capabilities.email });
+      const meta = await MetaService.metaGet();
+      set({ emailEnabled: !!meta.features.email });
     } catch (err: unknown) {
       // The sign in form still works without the answer; only the email dependent links stay hidden
-      console.error('Failed to load capabilities:', err);
+      console.error('Failed to load app meta:', err);
       set({ emailEnabled: false });
     }
   },

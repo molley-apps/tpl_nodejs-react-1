@@ -26,6 +26,7 @@ describe('schedule domains', () => {
     expect(await AdminNameDomain.adminSchedulesNameRunPost({ name: 'purge-expired-sessions' }, req)).toEqual(schedule);
     expect(mockSchedule.runNow).toHaveBeenCalledWith('purge-expired-sessions', 'admin-1');
     expect(await InternalNameDomain.internalJobsNamePost({ name: 'purge-expired-sessions' }, req)).toEqual({ skipped: false, status: 'success', durationMs: 5 });
-    expect(mockSchedule.runFromScheduler).toHaveBeenCalledWith('purge-expired-sessions', 'Bearer tok');
+    // The token is checked by InternalAuthService before the route; the domain only names the job.
+    expect(mockSchedule.runFromScheduler).toHaveBeenCalledWith('purge-expired-sessions');
   });
 });

@@ -4,6 +4,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EmailIcon from '@mui/icons-material/Email';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import KeyIcon from '@mui/icons-material/VpnKey';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLayoutStore } from '@/store/layoutStore';
 import { useUserStore } from '@/store/userStore';
@@ -17,6 +18,7 @@ const menuItems = [
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
   { text: 'Schedules', icon: <ScheduleIcon />, path: '/schedules' },
   { text: 'Email', icon: <EmailIcon />, path: '/settings/email' },
+  { text: 'App secrets', icon: <KeyIcon />, path: '/settings/secrets' },
 ];
 
 const Sidebar = () => {

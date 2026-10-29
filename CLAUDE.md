@@ -8,6 +8,8 @@
 
 @.claude/rules/platform-capabilities.md
 
+@.claude/rules/integrations-and-secrets.md
+
 
 ## Shell command style
 

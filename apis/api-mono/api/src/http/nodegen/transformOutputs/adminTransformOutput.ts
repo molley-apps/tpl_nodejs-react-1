@@ -26,6 +26,11 @@ export default {
     },
   ],
 
+  // adminSecretsGet
+  adminSecretsGet: [
+    { description: String, key: String, valueLast4: String, updatedAt: String },
+  ],
+
   // adminUsersGet
   adminUsersGet: {
     meta: { totalResultCount: Number, offset: Number, limit: Number },

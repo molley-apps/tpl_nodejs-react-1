@@ -3,6 +3,7 @@ import { HttpOptions } from '@/http';
 import config from '@/config';
 import AuthService from '@/services/AuthService';
 import FrontendAssetsService from '@/services/FrontendAssetsService';
+import InternalAuthService from '@/services/InternalAuthService';
 import SessionService from '@/services/SessionService';
 import readinessProbe from '@/utils/readinessProbe';
 import { logHttpException } from '@/utils/httpExceptionLogger';
@@ -24,8 +25,9 @@ export const buildHttpOptions = (): HttpOptions => {
 
     appMiddlewareOptions: {
       ...config.appMiddlewareOptions,
-      // Better Auth answers /api/auth/*, then the session is resolved for everything else
-      authentication: [AuthService.routeHandler(), SessionService.middleware()],
+      // Better Auth answers /api/auth/*, then the session is resolved for everything else, then the
+      // session-free /api/internal/ prefix is guarded by its Google OIDC check
+      authentication: [AuthService.routeHandler(), SessionService.middleware(), InternalAuthService.middleware()],
     },
 
     // BEFORE the standard request middleware: the readiness probe must answer

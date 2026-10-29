@@ -553,6 +553,283 @@
       "endpointName": "admin",
       "groupName": "admin"
     },
+    "/admin/secrets": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get secrets, from admin",
+        "description": "Every secret the administrator has saved (API keys and tokens for outside services the app integrates with),\nwithout their values: only the last four characters are ever returned.\n",
+        "operationId": "adminSecretsGet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+                      },
+                      "key": {
+                        "type": "string",
+                        "description": "The secret's name, as the code reads it with AppSecretsService.get"
+                      },
+                      "valueLast4": {
+                        "type": "string",
+                        "description": "The only part of the value ever returned; empty for a short value"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "valueLast4",
+                      "updatedAt"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSecretsRead",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "AdminSecrets"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
+    "/admin/secrets/{secretKey}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a secrets based on {secretKey}, from admin",
+        "description": "Deletes the secret. Any feature that needs it reports it as not configured from the next request.",
+        "operationId": "adminSecretsSecretKeyDelete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "secretKey",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+            },
+            "required": true,
+            "description": "The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSecretsSecretKeyDelete",
+        "x-request-definitions": {
+          "path": {
+            "name": "AdminSecretsSecretKeyDeletePath",
+            "params": [
+              "components.parameters.PathSecretKey"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSecretsSecretKeyDeletePath {\n    /**\n     * The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY\n     */\n    secretKey: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "GenericDeleteSuccess"
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a secrets based on {secretKey}, from admin",
+        "description": "Stores the value encrypted under the given name. The code reads it with AppSecretsService.get(name) on each\nuse, so a new value applies at once, without a redeploy. Omit the value to change only the description.\n",
+        "operationId": "adminSecretsSecretKeyPut",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "secretKey",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+            },
+            "required": true,
+            "description": "The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY"
+          },
+          {
+            "in": "body",
+            "name": "adminSecretsSecretKeyPutPut",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 4096,
+                  "description": "The secret itself. Required when creating; omit later to keep the stored value and change only the description."
+                }
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+                  },
+                  "value": {
+                    "type": "string",
+                    "maxLength": 4096,
+                    "description": "The secret itself. Required when creating; omit later to keep the stored value and change only the description."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+                    },
+                    "key": {
+                      "type": "string",
+                      "description": "The secret's name, as the code reads it with AppSecretsService.get"
+                    },
+                    "valueLast4": {
+                      "type": "string",
+                      "description": "The only part of the value ever returned; empty for a short value"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "valueLast4",
+                    "updatedAt"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiAdminSecretsSecretKeyUpdate",
+        "x-request-definitions": {
+          "body": {
+            "name": "AdminSecretsSecretKeyPut",
+            "params": [
+              {
+                "name": "AdminSecretsSecretKeyPutPut",
+                "path": "components.schemas.AdminSecretPut"
+              }
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSecretsSecretKeyPutPut {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n    /**\n     * The secret itself. Required when creating; omit later to keep the stored value and change\n     * only the description.\n     */\n    value?: string;\n}\n\n"
+            }
+          },
+          "path": {
+            "name": "AdminSecretsSecretKeyPutPath",
+            "params": [
+              "components.parameters.PathSecretKey"
+            ],
+            "interfaceText": {
+              "outputString": "\nexport interface AdminSecretsSecretKeyPutPath {\n    /**\n     * The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY\n     */\n    secretKey: string;\n}\n\n"
+            }
+          }
+        },
+        "x-response-definitions": {
+          "200": "AdminSecret"
+        }
+      },
+      "endpointName": "admin",
+      "groupName": "admin"
+    },
     "/admin/settings/email": {
       "delete": {
         "tags": [
@@ -1631,57 +1908,6 @@
       "endpointName": "admin",
       "groupName": "admin"
     },
-    "/capabilities": {
-      "get": {
-        "tags": [
-          "Capabilities"
-        ],
-        "summary": "Get capabilities",
-        "description": "Public. The users app reads it before showing flows that depend on them, eg password reset needs email.",
-        "operationId": "capabilitiesGet",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "email"
-                  ],
-                  "properties": {
-                    "email": {
-                      "type": "boolean",
-                      "description": "Outgoing email is configured and verified, so password reset and magic links work"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "406": {
-            "description": "Not Acceptable"
-          }
-        },
-        "x-passRequest": true,
-        "x-permission": "apiCapabilitiesRead",
-        "x-request-definitions": {},
-        "x-response-definitions": {
-          "200": "Capabilities"
-        }
-      },
-      "endpointName": "capabilities",
-      "groupName": "capabilities"
-    },
     "/health": {
       "get": {
         "tags": [
@@ -1812,6 +2038,70 @@
       },
       "endpointName": "internal",
       "groupName": "internal"
+    },
+    "/meta": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "summary": "Get meta",
+        "description": "What the users app needs before anyone is signed in: the app's name and the feature flags that decide which\noptions to show (eg password reset only when outgoing email works). Readable by anyone, so it carries flags\nand labels only, never configuration values or secrets.\n",
+        "operationId": "metaGet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "appName",
+                    "features"
+                  ],
+                  "properties": {
+                    "appName": {
+                      "type": "string",
+                      "description": "The app's display name, for titles and copy"
+                    },
+                    "features": {
+                      "type": "object",
+                      "required": [
+                        "email"
+                      ],
+                      "properties": {
+                        "email": {
+                          "type": "boolean",
+                          "description": "Outgoing email is configured and verified, so password reset and magic links work"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "406": {
+            "description": "Not Acceptable"
+          }
+        },
+        "x-passRequest": true,
+        "x-permission": "apiMetaRead",
+        "x-request-definitions": {},
+        "x-response-definitions": {
+          "200": "Meta"
+        }
+      },
+      "endpointName": "meta",
+      "groupName": "meta"
     },
     "/setup/admin": {
       "post": {
@@ -2281,6 +2571,16 @@
         "required": true,
         "description": "The job name as registered in src/jobs"
       },
+      "PathSecretKey": {
+        "in": "path",
+        "name": "secretKey",
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "required": true,
+        "description": "The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY"
+      },
       "PathUserId": {
         "in": "path",
         "name": "userId",
@@ -2748,6 +3048,88 @@
           "timed-out"
         ]
       },
+      "AdminSecretBaseAttributes": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+          }
+        }
+      },
+      "AdminSecret": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+          },
+          "key": {
+            "type": "string",
+            "description": "The secret's name, as the code reads it with AppSecretsService.get"
+          },
+          "valueLast4": {
+            "type": "string",
+            "description": "The only part of the value ever returned; empty for a short value"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "key",
+          "valueLast4",
+          "updatedAt"
+        ]
+      },
+      "AdminSecrets": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+            },
+            "key": {
+              "type": "string",
+              "description": "The secret's name, as the code reads it with AppSecretsService.get"
+            },
+            "valueLast4": {
+              "type": "string",
+              "description": "The only part of the value ever returned; empty for a short value"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "key",
+            "valueLast4",
+            "updatedAt"
+          ]
+        }
+      },
+      "AdminSecretPut": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "What the secret is for, eg \"Anthropic API key used by the summariser\""
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 4096,
+            "description": "The secret itself. Required when creating; omit later to keep the stored value and change only the description."
+          }
+        }
+      },
       "AdminSession": {
         "type": "object",
         "description": "A Better Auth session document, as stored in the sessions collection. The token is never returned.",
@@ -3057,18 +3439,6 @@
           }
         }
       },
-      "Capabilities": {
-        "type": "object",
-        "required": [
-          "email"
-        ],
-        "properties": {
-          "email": {
-            "type": "boolean",
-            "description": "Outgoing email is configured and verified, so password reset and magic links work"
-          }
-        }
-      },
       "GenericDeleteSuccess": {
         "type": "object",
         "properties": {
@@ -3120,6 +3490,43 @@
           },
           "durationMs": {
             "type": "integer"
+          }
+        }
+      },
+      "MetaFeatures": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "boolean",
+            "description": "Outgoing email is configured and verified, so password reset and magic links work"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "required": [
+          "appName",
+          "features"
+        ],
+        "properties": {
+          "appName": {
+            "type": "string",
+            "description": "The app's display name, for titles and copy"
+          },
+          "features": {
+            "type": "object",
+            "required": [
+              "email"
+            ],
+            "properties": {
+              "email": {
+                "type": "boolean",
+                "description": "Outgoing email is configured and verified, so password reset and magic links work"
+              }
+            }
           }
         }
       },
@@ -3521,6 +3928,48 @@
       }
     },
     {
+      "name": "AdminSecret",
+      "content": {
+        "outputString": "\nexport interface AdminSecret {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n    /**\n     * The secret's name, as the code reads it with AppSecretsService.get\n     */\n    key:       string;\n    updatedAt: Date;\n    /**\n     * The only part of the value ever returned; empty for a short value\n     */\n    valueLast4: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecretBaseAttributes",
+      "content": {
+        "outputString": "\nexport interface AdminSecretBaseAttributes {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecretPut",
+      "content": {
+        "outputString": "\nexport interface AdminSecretPut {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n    /**\n     * The secret itself. Required when creating; omit later to keep the stored value and change\n     * only the description.\n     */\n    value?: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecrets",
+      "content": {
+        "outputString": "export type AdminSecrets = AdminSecret[];\n\nexport interface AdminSecret {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n    /**\n     * The secret's name, as the code reads it with AppSecretsService.get\n     */\n    key:       string;\n    updatedAt: Date;\n    /**\n     * The only part of the value ever returned; empty for a short value\n     */\n    valueLast4: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecretsSecretKeyDeletePath",
+      "content": {
+        "outputString": "\nexport interface AdminSecretsSecretKeyDeletePath {\n    /**\n     * The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY\n     */\n    secretKey: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecretsSecretKeyPutPath",
+      "content": {
+        "outputString": "\nexport interface AdminSecretsSecretKeyPutPath {\n    /**\n     * The secret's name, upper case with underscores, eg ANTHROPIC_API_KEY\n     */\n    secretKey: string;\n}\n\n"
+      }
+    },
+    {
+      "name": "AdminSecretsSecretKeyPutPut",
+      "content": {
+        "outputString": "\nexport interface AdminSecretsSecretKeyPutPut {\n    /**\n     * What the secret is for, eg \"Anthropic API key used by the summariser\"\n     */\n    description?: string;\n    /**\n     * The secret itself. Required when creating; omit later to keep the stored value and change\n     * only the description.\n     */\n    value?: string;\n}\n\n"
+      }
+    },
+    {
       "name": "AdminSession",
       "content": {
         "outputString": "\n/**\n * A Better Auth session document, as stored in the sessions collection. The token is never\n * returned.\n */\nexport interface AdminSession {\n    _id:        string;\n    createdAt:  Date;\n    expiresAt:  Date;\n    ipAddress?: string;\n    updatedAt:  Date;\n    userAgent?: string;\n    userId:     string;\n}\n\n"
@@ -3611,12 +4060,6 @@
       }
     },
     {
-      "name": "Capabilities",
-      "content": {
-        "outputString": "\nexport interface Capabilities {\n    /**\n     * Outgoing email is configured and verified, so password reset and magic links work\n     */\n    email: boolean;\n}\n\n"
-      }
-    },
-    {
       "name": "GenericDeleteSuccess",
       "content": {
         "outputString": "\nexport interface GenericDeleteSuccess {\n    success?: boolean;\n}\n\n"
@@ -3644,6 +4087,18 @@
       "name": "InternalJobsRun",
       "content": {
         "outputString": "\nexport interface InternalJobsRun {\n    durationMs?: number;\n    /**\n     * True when the job was disabled, unknown or already running, so nothing ran\n     */\n    skipped: boolean;\n    status?: Status;\n}\n\nexport enum Status {\n    Failed = \"failed\",\n    Success = \"success\",\n    TimedOut = \"timed-out\",\n}\n\n"
+      }
+    },
+    {
+      "name": "Meta",
+      "content": {
+        "outputString": "\nexport interface Meta {\n    /**\n     * The app's display name, for titles and copy\n     */\n    appName:  string;\n    features: Features;\n}\n\nexport interface Features {\n    /**\n     * Outgoing email is configured and verified, so password reset and magic links work\n     */\n    email: boolean;\n}\n\n"
+      }
+    },
+    {
+      "name": "MetaFeatures",
+      "content": {
+        "outputString": "\nexport interface MetaFeatures {\n    /**\n     * Outgoing email is configured and verified, so password reset and magic links work\n     */\n    email: boolean;\n}\n\n"
       }
     },
     {
@@ -3723,17 +4178,17 @@
   "basePath": "/api",
   "groupNamesWithFirstUrlSegment": {
     "admin": "admin",
-    "capabilities": "capabilities",
     "health": "health",
     "internal": "internal",
+    "meta": "meta",
     "setup": "setup",
     "user": "user"
   },
   "endpoints": [
     "admin",
-    "capabilities",
     "health",
     "internal",
+    "meta",
     "setup",
     "user"
   ]
